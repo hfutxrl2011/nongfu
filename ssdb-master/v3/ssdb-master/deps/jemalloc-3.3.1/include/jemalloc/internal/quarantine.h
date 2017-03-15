@@ -1,14 +1,14 @@
-/******************************************************************************/
+ 
 #ifdef JEMALLOC_H_TYPES
 
 typedef struct quarantine_obj_s quarantine_obj_t;
 typedef struct quarantine_s quarantine_t;
 
-/* Default per thread quarantine size if valgrind is enabled. */
+ 
 #define	JEMALLOC_VALGRIND_QUARANTINE_DEFAULT	(ZU(1) << 24)
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
 struct quarantine_obj_s {
@@ -22,11 +22,11 @@ struct quarantine_s {
 	size_t			first;
 #define	LG_MAXOBJS_INIT 10
 	size_t			lg_maxobjs;
-	quarantine_obj_t	objs[1]; /* Dynamically sized ring buffer. */
+	quarantine_obj_t	objs[1];  
 };
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
 quarantine_t	*quarantine_init(size_t lg_maxobjs);
@@ -34,8 +34,8 @@ void	quarantine(void *ptr);
 void	quarantine_cleanup(void *arg);
 bool	quarantine_boot(void);
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
 #ifndef JEMALLOC_ENABLE_INLINE
@@ -62,6 +62,6 @@ quarantine_alloc_hook(void)
 }
 #endif
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 
 

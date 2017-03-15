@@ -1,10 +1,4 @@
-/**
-* @file serv.h
-* @Brief processors manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef SSDB_SERVER_H_
 #define SSDB_SERVER_H_
 

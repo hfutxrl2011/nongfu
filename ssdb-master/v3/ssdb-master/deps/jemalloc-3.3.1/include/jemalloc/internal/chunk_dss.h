@@ -1,4 +1,4 @@
-/******************************************************************************/
+ 
 #ifdef JEMALLOC_H_TYPES
 
 typedef enum {
@@ -11,14 +11,14 @@ typedef enum {
 #define	DSS_PREC_DEFAULT	dss_prec_secondary
 #define	DSS_DEFAULT		"secondary"
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
 extern const char *dss_prec_names[];
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
 dss_prec_t	chunk_dss_prec_get(void);
@@ -30,9 +30,9 @@ void	chunk_dss_prefork(void);
 void	chunk_dss_postfork_parent(void);
 void	chunk_dss_postfork_child(void);
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 

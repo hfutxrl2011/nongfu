@@ -1,10 +1,4 @@
-/**
-* @file thread.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_THREAD_H_
 #define UTIL_THREAD_H_
 
@@ -52,24 +46,7 @@ class Locking{
 
 };
 
-/*
-class Semaphore {
-	private:
-		pthread_cond_t cond;
-		pthread_mutex_t mutex;
-	public:
-		Semaphore(Mutex* mu){
-			pthread_cond_init(&cond, NULL);
-			pthread_mutex_init(&mutex, NULL);
-		}
-		~CondVar(){
-			pthread_cond_destroy(&cond);
-			pthread_mutex_destroy(&mutex);
-		}
-		void wait();
-		void signal();
-};
-*/
+ 
 
 
 // Thread safe queue

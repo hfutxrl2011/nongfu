@@ -1,10 +1,4 @@
-/**
-* @file line.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_LINE_H_
 #define UTIL_LINE_H_
 

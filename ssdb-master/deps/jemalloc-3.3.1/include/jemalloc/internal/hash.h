@@ -1,21 +1,17 @@
-/*
- * The following hash function is based on MurmurHash3, placed into the public
- * domain by Austin Appleby.  See http://code.google.com/p/smhasher/ for
- * details.
- */
-/******************************************************************************/
+ 
+ 
 #ifdef JEMALLOC_H_TYPES
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
 #ifndef JEMALLOC_ENABLE_INLINE
@@ -24,8 +20,8 @@ void	hash(const void *key, size_t len, const uint32_t seed,
 #endif
 
 #if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_HASH_C_))
-/******************************************************************************/
-/* Internal implementation. */
+ 
+ 
 JEMALLOC_INLINE uint32_t
 hash_rotl_32(uint32_t x, int8_t r)
 {
@@ -90,7 +86,7 @@ hash_x86_32(const void *key, int len, uint32_t seed)
 	const uint32_t c1 = 0xcc9e2d51;
 	const uint32_t c2 = 0x1b873593;
 
-	/* body */
+	 
 	{
 		const uint32_t *blocks = (const uint32_t *) (data + nblocks*4);
 		int i;
@@ -108,7 +104,7 @@ hash_x86_32(const void *key, int len, uint32_t seed)
 		}
 	}
 
-	/* tail */
+	 
 	{
 		const uint8_t *tail = (const uint8_t *) (data + nblocks*4);
 
@@ -122,7 +118,7 @@ hash_x86_32(const void *key, int len, uint32_t seed)
 		}
 	}
 
-	/* finalization */
+	 
 	h1 ^= len;
 
 	h1 = hash_fmix_32(h1);
@@ -147,7 +143,7 @@ hash_x86_128(const void *key, const int len, uint32_t seed,
 	const uint32_t c3 = 0x38b34ae5;
 	const uint32_t c4 = 0xa1e38b93;
 
-	/* body */
+	 
 	{
 		const uint32_t *blocks = (const uint32_t *) (data + nblocks*16);
 		int i;
@@ -180,7 +176,7 @@ hash_x86_128(const void *key, const int len, uint32_t seed,
 		}
 	}
 
-	/* tail */
+	 
 	{
 		const uint8_t *tail = (const uint8_t *) (data + nblocks*16);
 		uint32_t k1 = 0;
@@ -214,7 +210,7 @@ hash_x86_128(const void *key, const int len, uint32_t seed,
 		}
 	}
 
-	/* finalization */
+	 
 	h1 ^= len; h2 ^= len; h3 ^= len; h4 ^= len;
 
 	h1 += h2; h1 += h3; h1 += h4;
@@ -245,7 +241,7 @@ hash_x64_128(const void *key, const int len, const uint32_t seed,
 	const uint64_t c1 = QU(0x87c37b91114253d5LLU);
 	const uint64_t c2 = QU(0x4cf5ad432745937fLLU);
 
-	/* body */
+	 
 	{
 		const uint64_t *blocks = (const uint64_t *) (data);
 		int i;
@@ -266,7 +262,7 @@ hash_x64_128(const void *key, const int len, const uint32_t seed,
 		}
 	}
 
-	/* tail */
+	 
 	{
 		const uint8_t *tail = (const uint8_t*)(data + nblocks*16);
 		uint64_t k1 = 0;
@@ -294,7 +290,7 @@ hash_x64_128(const void *key, const int len, const uint32_t seed,
 		}
 	}
 
-	/* finalization */
+	 
 	h1 ^= len; h2 ^= len;
 
 	h1 += h2;
@@ -311,8 +307,8 @@ hash_x64_128(const void *key, const int len, const uint32_t seed,
 }
 
 
-/******************************************************************************/
-/* API. */
+ 
+ 
 JEMALLOC_INLINE void
 hash(const void *key, size_t len, const uint32_t seed, size_t r_hash[2])
 {
@@ -327,5 +323,5 @@ hash(const void *key, size_t len, const uint32_t seed, size_t r_hash[2])
 }
 #endif
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 

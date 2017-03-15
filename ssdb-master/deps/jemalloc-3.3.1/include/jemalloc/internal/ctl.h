@@ -1,4 +1,4 @@
-/******************************************************************************/
+ 
 #ifdef JEMALLOC_H_TYPES
 
 typedef struct ctl_node_s ctl_node_t;
@@ -7,8 +7,8 @@ typedef struct ctl_indexed_node_s ctl_indexed_node_t;
 typedef struct ctl_arena_stats_s ctl_arena_stats_t;
 typedef struct ctl_stats_s ctl_stats_t;
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
 struct ctl_node_s {
@@ -18,7 +18,7 @@ struct ctl_node_s {
 struct ctl_named_node_s {
 	struct ctl_node_s	node;
 	const char		*name;
-	/* If (nchildren == 0), this is a terminal node. */
+	 
 	unsigned		nchildren;
 	const			ctl_node_t *children;
 	int			(*ctl)(const size_t *, size_t, void *, size_t *,
@@ -38,14 +38,14 @@ struct ctl_arena_stats_s {
 	size_t			pdirty;
 	arena_stats_t		astats;
 
-	/* Aggregate stats for small size classes, based on bin stats. */
+	 
 	size_t			allocated_small;
 	uint64_t		nmalloc_small;
 	uint64_t		ndalloc_small;
 	uint64_t		nrequests_small;
 
 	malloc_bin_stats_t	bstats[NBINS];
-	malloc_large_stats_t	*lstats;	/* nlclasses elements. */
+	malloc_large_stats_t	*lstats;	 
 };
 
 struct ctl_stats_s {
@@ -53,21 +53,21 @@ struct ctl_stats_s {
 	size_t			active;
 	size_t			mapped;
 	struct {
-		size_t		current;	/* stats_chunks.curchunks */
-		uint64_t	total;		/* stats_chunks.nchunks */
-		size_t		high;		/* stats_chunks.highchunks */
+		size_t		current;	 
+		uint64_t	total;		 
+		size_t		high;		 
 	} chunks;
 	struct {
-		size_t		allocated;	/* huge_allocated */
-		uint64_t	nmalloc;	/* huge_nmalloc */
-		uint64_t	ndalloc;	/* huge_ndalloc */
+		size_t		allocated;	 
+		uint64_t	nmalloc;	 
+		uint64_t	ndalloc;	 
 	} huge;
 	unsigned		narenas;
-	ctl_arena_stats_t	*arenas;	/* (narenas + 1) elements. */
+	ctl_arena_stats_t	*arenas;	 
 };
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
 int	ctl_byname(const char *name, void *oldp, size_t *oldlenp, void *newp,
@@ -108,10 +108,10 @@ void	ctl_postfork_child(void);
 	}								\
 } while (0)
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 
 

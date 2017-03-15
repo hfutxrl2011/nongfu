@@ -1,4 +1,4 @@
-/******************************************************************************/
+ 
 #ifdef JEMALLOC_H_TYPES
 
 typedef struct malloc_mutex_s malloc_mutex_t;
@@ -20,8 +20,8 @@ typedef struct malloc_mutex_s malloc_mutex_t;
 #  endif
 #endif
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
 struct malloc_mutex_s {
@@ -37,14 +37,14 @@ struct malloc_mutex_s {
 #endif
 };
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
 #ifdef JEMALLOC_LAZY_LOCK
 extern bool isthreaded;
 #else
-#  undef isthreaded /* Undo private_namespace.h definition. */
+#  undef isthreaded  
 #  define isthreaded true
 #endif
 
@@ -54,8 +54,8 @@ void	malloc_mutex_postfork_parent(malloc_mutex_t *mutex);
 void	malloc_mutex_postfork_child(malloc_mutex_t *mutex);
 bool	mutex_boot(void);
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
 #ifndef JEMALLOC_ENABLE_INLINE
@@ -95,5 +95,5 @@ malloc_mutex_unlock(malloc_mutex_t *mutex)
 }
 #endif
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 

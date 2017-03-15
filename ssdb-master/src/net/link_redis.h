@@ -1,10 +1,4 @@
-/**
-* @file link_redis.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef NET_REDIS_LINK_H_
 #define NET_REDIS_LINK_H_
 

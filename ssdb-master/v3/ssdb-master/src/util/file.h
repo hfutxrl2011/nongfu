@@ -1,10 +1,4 @@
-/**
-* @file file.h
-* @Brief file functions 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_FILE_H_
 #define UTIL_FILE_H_
 

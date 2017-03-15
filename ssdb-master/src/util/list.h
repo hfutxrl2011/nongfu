@@ -1,10 +1,4 @@
-/**
-* @file list.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_LIST_H_
 #define UTIL_LIST_H_
 

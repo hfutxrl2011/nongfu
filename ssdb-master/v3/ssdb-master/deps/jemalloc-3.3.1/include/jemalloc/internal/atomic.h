@@ -1,12 +1,12 @@
-/******************************************************************************/
+ 
 #ifdef JEMALLOC_H_TYPES
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
 #define	atomic_read_uint64(p)	atomic_add_uint64(p, 0)
@@ -14,8 +14,8 @@
 #define	atomic_read_z(p)	atomic_add_z(p, 0)
 #define	atomic_read_u(p)	atomic_add_u(p, 0)
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
 #ifndef JEMALLOC_ENABLE_INLINE
@@ -30,8 +30,8 @@ unsigned	atomic_sub_u(unsigned *p, unsigned x);
 #endif
 
 #if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_ATOMIC_C_))
-/******************************************************************************/
-/* 64-bit operations. */
+ 
+ 
 #if (LG_SIZEOF_PTR == 3 || LG_SIZEOF_INT == 3)
 #  ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_8
 JEMALLOC_INLINE uint64_t
@@ -82,8 +82,8 @@ atomic_add_uint64(uint64_t *p, uint64_t x)
 
 	asm volatile (
 	    "lock; xaddq %0, %1;"
-	    : "+r" (x), "=m" (*p) /* Outputs. */
-	    : "m" (*p) /* Inputs. */
+	    : "+r" (x), "=m" (*p)  
+	    : "m" (*p)  
 	    );
 
 	return (x);
@@ -96,8 +96,8 @@ atomic_sub_uint64(uint64_t *p, uint64_t x)
 	x = (uint64_t)(-(int64_t)x);
 	asm volatile (
 	    "lock; xaddq %0, %1;"
-	    : "+r" (x), "=m" (*p) /* Outputs. */
-	    : "m" (*p) /* Inputs. */
+	    : "+r" (x), "=m" (*p)  
+	    : "m" (*p)  
 	    );
 
 	return (x);
@@ -107,10 +107,7 @@ JEMALLOC_INLINE uint64_t
 atomic_add_uint64(uint64_t *p, uint64_t x)
 {
 
-	/*
-	 * atomic_fetchadd_64() doesn't exist, but we only ever use this
-	 * function on LP64 systems, so atomic_fetchadd_long() will do.
-	 */
+	 
 	assert(sizeof(uint64_t) == sizeof(unsigned long));
 
 	return (atomic_fetchadd_long(p, (unsigned long)x) + x);
@@ -143,8 +140,8 @@ atomic_sub_uint64(uint64_t *p, uint64_t x)
 #  endif
 #endif
 
-/******************************************************************************/
-/* 32-bit operations. */
+ 
+ 
 #ifdef __GCC_HAVE_SYNC_COMPARE_AND_SWAP_4
 JEMALLOC_INLINE uint32_t
 atomic_add_uint32(uint32_t *p, uint32_t x)
@@ -194,8 +191,8 @@ atomic_add_uint32(uint32_t *p, uint32_t x)
 
 	asm volatile (
 	    "lock; xaddl %0, %1;"
-	    : "+r" (x), "=m" (*p) /* Outputs. */
-	    : "m" (*p) /* Inputs. */
+	    : "+r" (x), "=m" (*p)  
+	    : "m" (*p)  
 	    );
 
 	return (x);
@@ -208,8 +205,8 @@ atomic_sub_uint32(uint32_t *p, uint32_t x)
 	x = (uint32_t)(-(int32_t)x);
 	asm volatile (
 	    "lock; xaddl %0, %1;"
-	    : "+r" (x), "=m" (*p) /* Outputs. */
-	    : "m" (*p) /* Inputs. */
+	    : "+r" (x), "=m" (*p)  
+	    : "m" (*p)  
 	    );
 
 	return (x);
@@ -246,8 +243,8 @@ atomic_sub_uint32(uint32_t *p, uint32_t x)
 #  error "Missing implementation for 32-bit atomic operations"
 #endif
 
-/******************************************************************************/
-/* size_t operations. */
+ 
+ 
 JEMALLOC_INLINE size_t
 atomic_add_z(size_t *p, size_t x)
 {
@@ -272,8 +269,8 @@ atomic_sub_z(size_t *p, size_t x)
 #endif
 }
 
-/******************************************************************************/
-/* unsigned operations. */
+ 
+ 
 JEMALLOC_INLINE unsigned
 atomic_add_u(unsigned *p, unsigned x)
 {
@@ -297,8 +294,8 @@ atomic_sub_u(unsigned *p, unsigned x)
 	    (uint32_t)-((int32_t)x)));
 #endif
 }
-/******************************************************************************/
+ 
 #endif
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 

@@ -1,6 +1,4 @@
-/*
- * List definitions.
- */
+ 
 #define ql_head(a_type)							\
 struct {								\
 	a_type *qlh_first;						\
@@ -10,7 +8,7 @@ struct {								\
 
 #define ql_elm(a_type)	qr(a_type)
 
-/* List functions. */
+ 
 #define ql_new(a_head) do {						\
 	(a_head)->qlh_first = NULL;					\
 } while (0)

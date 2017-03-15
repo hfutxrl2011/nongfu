@@ -1,10 +1,4 @@
-/**
-* @file server.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef NET_SERVER_H_
 #define NET_SERVER_H_
 

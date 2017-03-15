@@ -1,10 +1,4 @@
-/**
-* @file signal.h
-* @Brief signal hander
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_SIGNAL_H_
 #define UTIL_SIGNAL_H_
 

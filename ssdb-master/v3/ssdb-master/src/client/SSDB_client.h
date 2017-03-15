@@ -1,10 +1,4 @@
-/**
-* @file SSDB_client.h
-* @Brief test client
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef SSDB_API_CPP
 #define SSDB_API_CPP
 

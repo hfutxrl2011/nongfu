@@ -12,34 +12,22 @@
 
 namespace ssdb{
 
-/**
- * Client requests' return status.
- */
+ 
 class Status{
 public:
-	/**
-	 * Returns <code>true</code> if the request succeeded.
-	 */
+	 
 	bool ok(){
 		return code_ == "ok";
 	}
-	/**
-	 * Returns <code>true</code> if the requested key is not found. When this method
-	 * returns <code>true</code>, ok() will always returns <code>false</code>.
-	 */
+	 
 	bool not_found(){
 		return code_ == "not_found";
 	}
-	/**
-	 * Returns <code>true</code> if error occurs during the request.
-	 * It might be a server error, or a client error.
-	 */
+	 
 	bool error(){
 		return code_ != "ok";
 	}
-	/**
-	 * The response code.
-	 */
+	 
 	std::string code(){
 		return code_;
 	}
@@ -59,9 +47,7 @@ private:
 	std::string code_;
 };
 
-/**
- * The SSDB client used to connect to SSDB server.
- */
+ 
 class Client{
 public:
 	static Client* connect(const char *ip, int port);

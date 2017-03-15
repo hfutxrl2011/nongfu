@@ -1,36 +1,23 @@
-/******************************************************************************/
+ 
 #ifdef JEMALLOC_H_TYPES
 
-/* Size of stack-allocated buffer passed to buferror(). */
+ 
 #define	BUFERROR_BUF		64
 
-/*
- * Size of stack-allocated buffer used by malloc_{,v,vc}printf().  This must be
- * large enough for all possible uses within jemalloc.
- */
+ 
 #define	MALLOC_PRINTF_BUFSIZE	4096
 
-/*
- * Wrap a cpp argument that contains commas such that it isn't broken up into
- * multiple arguments.
- */
+ 
 #define JEMALLOC_CONCAT(...) __VA_ARGS__
 
-/*
- * Silence compiler warnings due to uninitialized values.  This is used
- * wherever the compiler fails to recognize that the variable is never used
- * uninitialized.
- */
+ 
 #ifdef JEMALLOC_CC_SILENCE
 #  define JEMALLOC_CC_SILENCE_INIT(v) = v
 #else
 #  define JEMALLOC_CC_SILENCE_INIT(v)
 #endif
 
-/*
- * Define a custom assert() in order to reduce the chances of deadlock during
- * assertion failure.
- */
+ 
 #ifndef assert
 #define	assert(e) do {							\
 	if (config_debug && !(e)) {					\
@@ -42,7 +29,7 @@
 } while (0)
 #endif
 
-/* Use to assert a particular configuration, e.g., cassert(config_debug). */
+ 
 #define	cassert(c) do {							\
 	if ((c) == false)						\
 		assert(false);						\
@@ -74,22 +61,19 @@
 		not_implemented();					\
 } while (0)
 
-#endif /* JEMALLOC_H_TYPES */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_STRUCTS
 
-#endif /* JEMALLOC_H_STRUCTS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_EXTERNS
 
 int	buferror(char *buf, size_t buflen);
 uintmax_t	malloc_strtoumax(const char *nptr, char **endptr, int base);
 void	malloc_write(const char *s);
 
-/*
- * malloc_vsnprintf() supports a subset of snprintf(3) that avoids floating
- * point math.
- */
+ 
 int	malloc_vsnprintf(char *str, size_t size, const char *format,
     va_list ap);
 int	malloc_snprintf(char *str, size_t size, const char *format, ...)
@@ -101,8 +85,8 @@ void malloc_cprintf(void (*write)(void *, const char *), void *cbopaque,
 void	malloc_printf(const char *format, ...)
     JEMALLOC_ATTR(format(printf, 1, 2));
 
-#endif /* JEMALLOC_H_EXTERNS */
-/******************************************************************************/
+#endif  
+ 
 #ifdef JEMALLOC_H_INLINES
 
 #ifndef JEMALLOC_ENABLE_INLINE
@@ -113,7 +97,7 @@ int	get_errno(void);
 #endif
 
 #if (defined(JEMALLOC_ENABLE_INLINE) || defined(JEMALLOC_UTIL_C_))
-/* Compute the smallest power of 2 that is >= x. */
+ 
 JEMALLOC_INLINE size_t
 pow2_ceil(size_t x)
 {
@@ -131,7 +115,7 @@ pow2_ceil(size_t x)
 	return (x);
 }
 
-/* Sets error code */
+ 
 JEMALLOC_INLINE void
 set_errno(int errnum)
 {
@@ -143,7 +127,7 @@ set_errno(int errnum)
 #endif
 }
 
-/* Get last error code */
+ 
 JEMALLOC_INLINE int
 get_errno(void)
 {
@@ -156,5 +140,5 @@ get_errno(void)
 }
 #endif
 
-#endif /* JEMALLOC_H_INLINES */
-/******************************************************************************/
+#endif  
+ 

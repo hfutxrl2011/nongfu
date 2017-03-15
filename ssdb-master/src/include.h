@@ -1,10 +1,4 @@
-/**
-* @file include.h
-* @Brief all included files
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef SSDB_INCLUDE_H_
 #define SSDB_INCLUDE_H_
 

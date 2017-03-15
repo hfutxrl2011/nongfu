@@ -1,10 +1,4 @@
-/**
-* @file thread_mem.h
-* @Brief thread memory manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_THREAD_MEM_H_
 #define UTIL_THREAD_MEM_H_
 

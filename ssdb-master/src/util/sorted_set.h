@@ -1,10 +1,4 @@
-/**
-* @file sorted_set.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_SORTED_SET_H_
 #define UTIL_SORTED_SET_H_
 
@@ -30,17 +24,7 @@ public:
 	int pop_front();
 	int pop_back();
 	
-	/*
-	class Iterator
-	{
-	public:
-		bool next();
-		const std::string& key();
-		int64_t score();
-	};
-	
-	Iterator begin();
-	*/
+	 
 
 private:
 	struct Item
@@ -59,31 +43,7 @@ private:
 };
 
 
-/*
-TODO: HashedWheel
-Each item is linked in two list, one is slot list, the other
-one is total list.
-*/
-/*
-template <class T>
-class SortedList
-{
-public:
-	void add(const T data, int64_t score);
-	T front();
-	void pop_front();
-
-	class Item
-	{
-	public:
-		int64_t score;
-		Item *prev;
-		Item *next;
-		//Item *slot_prev;
-		//Item *slot_next;
-		T data;
-	};
-};
-*/
+ 
+ 
 
 #endif

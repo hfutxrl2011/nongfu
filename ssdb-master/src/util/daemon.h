@@ -1,10 +1,4 @@
-/**
-* @file daemon.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_DAEMON_H_
 #define UTIL_DAEMON_H_
 

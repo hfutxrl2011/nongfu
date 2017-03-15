@@ -1,10 +1,4 @@
-/**
-* @file link.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef NET_LINK_H_
 #define NET_LINK_H_
 
@@ -74,12 +68,7 @@ class Link{
 		// REQUIRES: nonblock
 		int flush();
 
-		/**
-		 * parse received data, and return -
-		 * NULL: error
-		 * empty vector: recv not ready
-		 * vector<Bytes>: recv ready
-		 */
+		 
 		const std::vector<Bytes>* recv();
 		// wait until a response received.
 		const std::vector<Bytes>* response();
@@ -97,11 +86,7 @@ class Link{
 			return &recv_data;
 		}
 		
-		/** these methods will send a request to the server, and wait until a response received.
-		 * @return
-		 * NULL: error
-		 * vector<Bytes>: response ready
-		 */
+		 
 		const std::vector<Bytes>* request(const Bytes &s1);
 		const std::vector<Bytes>* request(const Bytes &s1, const Bytes &s2);
 		const std::vector<Bytes>* request(const Bytes &s1, const Bytes &s2, const Bytes &s3);

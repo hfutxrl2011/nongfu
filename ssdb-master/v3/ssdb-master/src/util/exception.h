@@ -1,10 +1,4 @@
-/**
-* @file exception.h
-* @Brief exception definition, used for long return
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_EXCEPTION_H_
 #define UTIL_EXCEPTION_H_
 

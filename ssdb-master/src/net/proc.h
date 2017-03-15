@@ -1,10 +1,4 @@
-/**
-* @file proc.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef NET_PROC_H_
 #define NET_PROC_H_
 

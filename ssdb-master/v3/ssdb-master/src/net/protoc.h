@@ -1,10 +1,4 @@
-/**
-* @file protoc.h
-* @Brief communication protoc
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef NET_PROTOC_H_
 #define NET_PROTOC_H_
 

@@ -1,10 +1,4 @@
-/**
-* @file log.h
-* @Brief log writer
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_LOG_H_
 #define UTIL_LOG_H_
 

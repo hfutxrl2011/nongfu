@@ -1,10 +1,4 @@
-/**
-* @file strings.h
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #ifndef UTIL_STRING_H_
 #define UTIL_STRING_H_
 
@@ -28,7 +22,7 @@ int is_empty_str(const char *str){
 	return *p == '\0';
 }
 
-/* 返回左边不包含空白字符的字符串的指针 */
+ 
 inline static
 char *ltrim(const char *str){
 	const char *p = str;
@@ -38,7 +32,7 @@ char *ltrim(const char *str){
 	return (char *)p;
 }
 
-/* 返回指向字符串结尾的指针, 会修改字符串内容 */
+ 
 inline static
 char *rtrim(char *str){
 	char *p;
@@ -50,7 +44,7 @@ char *rtrim(char *str){
 	return p;
 }
 
-/* 返回左边不包含空白字符的字符串的指针 */
+ 
 inline static
 char *trim(char *str){
 	char *p;
@@ -200,29 +194,7 @@ std::string str_unescape(const std::string &s){
 inline static
 std::string hexmem(const void *p, int size){
 	return str_escape((char *)p, size);
-	/*
-	std::string ret;
-	char buf[4];
-	for(int i=0; i<size; i++){
-		char c = ((char *)p)[i];
-		if(isalnum(c) || isprint(c)){
-			ret.append(1, c);
-		}else{
-			switch(c){
-				case '\r':
-					ret.append("\\r", 2);
-					break;
-				case '\n':
-					ret.append("\\n", 2);
-					break;
-				default:
-					sprintf(buf, "\\%02x", (unsigned char)c);
-					ret.append(buf, 3);
-			}
-		}
-	}
-	return ret;
-	*/
+	 
 }
 
 // TODO: mem_printf("%5c%d%s", p, size);
