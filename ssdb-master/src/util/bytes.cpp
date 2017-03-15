@@ -1,10 +1,4 @@
-/**
-* @file bytes.cpp
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "bytes.h"
 
 Buffer::Buffer(int total){

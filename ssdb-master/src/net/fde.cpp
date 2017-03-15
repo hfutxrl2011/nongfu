@@ -1,10 +1,4 @@
-/**
-* @file fde.cpp
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "fde.h"
 
 struct Fdevent* Fdevents::get_fde(int fd){

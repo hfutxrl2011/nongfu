@@ -1,10 +1,4 @@
-/**
-* @file app.cpp
-* @Brief app manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "app.h"
 #include "log.h"
 #include "file.h"

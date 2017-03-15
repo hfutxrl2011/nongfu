@@ -1,10 +1,4 @@
-/**
-* @file ssdb-server.cpp
-* @Brief entry file of server
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "include.h"
 #include "version.h"
 #include "net/server.h"

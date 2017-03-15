@@ -1,10 +1,4 @@
-/**
-* @file fde.cpp
-* @Brief fd pool manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "fde.h"
 #include "../util/exception.h"
 

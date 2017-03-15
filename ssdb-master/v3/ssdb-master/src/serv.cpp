@@ -1,10 +1,4 @@
-/**
-* @file serv.cpp
-* @Brief processors manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 
 #include "version.h"
 #include "util/log.h"

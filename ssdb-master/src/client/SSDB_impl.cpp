@@ -122,7 +122,7 @@ const std::vector<std::string>* ClientImpl::request(const std::string &cmd, cons
 	return request(req);
 }
 
-/******************** KV *************************/
+ 
 
 Status ClientImpl::get(const std::string &key, std::string *val)
 {

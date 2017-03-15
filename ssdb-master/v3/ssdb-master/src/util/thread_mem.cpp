@@ -1,10 +1,4 @@
-/**
-* @file thread_mem.cpp
-* @Brief thread memory manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include <errno.h>
 #include "log.h"
 #include "exception.h"

@@ -1,10 +1,4 @@
-/**
-* @file hello-ssdb.cpp
-* @Brief test client
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>

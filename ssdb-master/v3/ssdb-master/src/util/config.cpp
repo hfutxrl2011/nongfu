@@ -1,10 +1,4 @@
-/**
-* @file config.cpp
-* @Brief config manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "log.h"
 #include "config.h"
 #include "strings.h"
@@ -184,7 +178,7 @@ const Config* Config::get(const char *key) const{
 
 	snprintf(path, CONFIG_MAX_LINE, "%s", key);
 
-	char *f, *fs; /* field, field seperator */
+	char *f, *fs;  
 	f = fs = path;
 	while(conf){
 		switch(*fs++){

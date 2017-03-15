@@ -1,10 +1,4 @@
-/**
-* @file proc_kv.cpp
-* @Brief processors should be placed here
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "../serv.h"
 #include "../net/proc.h"
 #include "../net/server.h"

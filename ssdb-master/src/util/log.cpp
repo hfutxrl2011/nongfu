@@ -1,10 +1,4 @@
-/**
-* @file log.cpp
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "log.h"
 #include <algorithm>
 
@@ -54,7 +48,7 @@ int log_write(int level, const char *fmt, ...){
 	return ret;
 }
 
-/*****/
+ 
 
 Logger* Logger::shared(){
 	return &logger;
@@ -269,7 +263,7 @@ int Logger::logv(int level, const char *fmt, va_list ap){
 	gettimeofday(&tv, NULL);
 	time = tv.tv_sec;
 	tm = localtime_r(&time, &tm_tmp);
-	/* %3ld 在数值位数超过3位的时候不起作用, 所以这里转成int */
+	 
 	len = sprintf(ptr, "%04d-%02d-%02d %02d:%02d:%02d.%03d ",
 		tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
 		tm->tm_hour, tm->tm_min, tm->tm_sec, (int)(tv.tv_usec/1000));

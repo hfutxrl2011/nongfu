@@ -1,10 +1,4 @@
-/**
-* @file server.cpp
-* @Brief main server logic
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "server.h"
 #include "../util/strings.h"
 #include "../util/file.h"

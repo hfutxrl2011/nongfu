@@ -1,10 +1,4 @@
-/**
-* @file log.cpp
-* @Brief log writer
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "log.h"
 #include <algorithm>
 

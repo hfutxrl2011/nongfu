@@ -1,10 +1,4 @@
-/**
-* @file config.cpp
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "log.h"
 #include "config.h"
 #include "strings.h"
@@ -35,12 +29,12 @@ Config* Config::load(const char *filename){
 	while(fgets(buf, sizeof(buf), fp)){
 		lineno++;
 
-		buf[strlen(buf) - 1] = '\0'; /* 去除 '\n' */
+		buf[strlen(buf) - 1] = '\0';  
 		if(is_empty_str(buf)){
 			continue;
 		}
 
-		/* 有效行以 \t* 开头 */
+		 
 		int indent = strspn(buf, "\t");
 		char *key = buf + indent;
 
@@ -50,7 +44,7 @@ Config* Config::load(const char *filename){
 		}
 		if(indent <= last_indent){
 			for(int i = indent; i <= last_indent; i++){
-				/* 第一个配置时, 此条件为真 */
+				 
 				if(cfg != root){
 					cfg = cfg->parent;
 				}
@@ -66,7 +60,7 @@ Config* Config::load(const char *filename){
 		}
 
 		char *val = key;
-		/* 跳过键名 */
+		 
 		while(*val && !is_kv_seperator(*val)){
 			val++;
 		}
@@ -79,7 +73,7 @@ Config* Config::load(const char *filename){
 		}
 		*val++ = '\0';
 
-		/* key 或者 value 的前后空白字符会被过滤 */
+		 
 		key = trim(key);
 		val = trim(val);
 
@@ -131,7 +125,7 @@ Config* Config::build_key_path(const char *key){
 
 	snprintf(path, CONFIG_MAX_LINE, "%s", key);
 
-	char *f, *fs; /* field, field seperator */
+	char *f, *fs;  
 	f = fs = path;
 	while(1){
 		switch(*fs++){
@@ -189,7 +183,7 @@ const Config* Config::get(const char *key) const{
 
 	snprintf(path, CONFIG_MAX_LINE, "%s", key);
 
-	char *f, *fs; /* field, field seperator */
+	char *f, *fs;  
 	f = fs = path;
 	while(conf){
 		switch(*fs++){

@@ -1,10 +1,4 @@
-/**
-* @file worker.cpp
-* @Brief worker
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "worker.h"
 #include "link.h"
 #include "proc.h"

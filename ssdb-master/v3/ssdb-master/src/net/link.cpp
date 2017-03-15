@@ -1,10 +1,4 @@
-/**
-* @file link.cpp
-* @Brief link manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include <errno.h>
 #include <fcntl.h>
 #include <string.h>
@@ -339,87 +333,6 @@ int Link::write(){
 	}
 	return writed - last_writed;
 }
-/*
-int Link::send(const head_t &head, const void *req)
-{
-	int want = sizeof(head_t);
-	int nwrited = 0;
-	while(want > 0){
-		int len = ::write(sock, reinterpret_cast<const char *>(&head) + nwrited, (10 < want ? 10: want));
-		if(-1 == len){
-			if(EINTR == errno){
-				continue;
-			}
-			return -1;
-		}
-		if(0 == len){
-			return -1;
-		}
-		nwrited += len;
-		want -= len;
-	}
-	printf("send head succ  body len: %d\n", head.bodylen);
-	want = head.bodylen;
-	nwrited = 0;
-	while(want > 0){
-		getchar(); int len = ::write(sock, reinterpret_cast<const char *>(req) + nwrited, (1 < want ? 1: want)); printf("send [ %d ] bytes body\n", nwrited + len);
-		if(-1 == len){
-			fprintf(stderr, "1error info: %s\n", strerror(errno));
-			if(EINTR == errno){
-				continue;
-			}
-			return -1;
-		}
-		if(0 == len){
-			fprintf(stderr, "2error info: %s\n", strerror(errno));
-			return -1;
-		}
-		nwrited += len;
-		want -= len;
-	}
-
-	return head.bodylen + sizeof(head_t);
-}
-
-int Link::recv(head_t &head, void *res, int res_len)
-{
-	int want = sizeof(head_t);
-	int nread = 0;
-	while(want > 0){
-		int len = ::read(sock, reinterpret_cast<char *>(&head), want);
-		if(-1 == len){
-			if(EINTR == errno){
-				continue;
-			}
-			return -1;
-		}
-		if(0 == len){
-			return -1;
-		}
-		nread += len;
-		want -= len;
-	}
-	want = head.bodylen;
-	nread = 0;
-	if(res_len < head.bodylen){
-		return -1;
-	}
-	printf("received head succ [ body_len: %u ].", head.bodylen);
-	while(want > 0){
-		int len = ::read(sock, reinterpret_cast<char *>(res), want);
-		if(-1 == len){
-			if(EINTR == errno){
-				continue;
-			}
-			return -1;
-		}
-		if(0 == len){
-			return -1;
-		}
-		nread += len;
-		want -= len;
-	}
-	return head.bodylen + sizeof(head_t);
-}*/
+ 
 
 

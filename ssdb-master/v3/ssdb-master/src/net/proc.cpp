@@ -1,10 +1,4 @@
-/**
-* @file proc.cpp
-* @Brief processor manager
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "proc.h"
 #include "server.h"
 #include "../util/log.h"

@@ -1,10 +1,4 @@
-/**
-* @file server.cpp
-* @Brief 
-* @author Youzu-BigApp
-* @version 1.0.0
-* @date 2016-03-10
-*/
+ 
 #include "server.h"
 #include "../util/strings.h"
 #include "../util/file.h"
@@ -360,29 +354,7 @@ proc_err:
 	return PROC_ERROR;
 }
 
-/*
-event:
-	read => ready_list OR close
-	write => NONE
-proc =>
-	done: write & (read OR ready_list)
-	async: stop (read & write)
-	
-1. When writing to a link, it may happen to be in the ready_list,
-so we cannot close that link in write process, we could only
-just mark it as closed.
-
-2. When reading from a link, it is never in the ready_list, so it
-is safe to close it in read process, also safe to put it into
-ready_list.
-
-3. Ignore FDEVENT_ERR
-
-A link is in either one of these places:
-	1. ready list
-	2. async worker queue
-So it safe to delete link when processing ready list and async worker result.
-*/
+ 
 int NetworkServer::proc_client_event(const Fdevent *fde, ready_list_t *ready_list){
 	Link *link = (Link *)fde->data.ptr;
 	if(fde->events & FDEVENT_IN){
@@ -460,7 +432,7 @@ int NetworkServer::proc(ProcJob *job){
 }
 
 
-/* built-in procs */
+ 
 
 static int proc_ping(NetworkServer *net, Link *link, const Request &req, Response *resp){
 	resp->push_back("ok");
