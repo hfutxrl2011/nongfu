@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package pb;
+
+service RpcHallService {
+    rpc Kick (RpcKickReq) returns (RpcKickRes) {
+    }
+    rpc KickAll (RpcKickReq) returns (RpcKickRes) {
+    }
+}
+
+message RpcKickReq {
+    uint32 user_id = 1; // 玩家ID [0:所有玩家]
+}
+
+message RpcKickRes {
+}

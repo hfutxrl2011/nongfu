@@ -1,0 +1,37 @@
+syntax = "proto2";
+
+package pb;
+
+// 2001 获取版本号
+message GameIssueReq{
+}
+
+message GameIssueRes {
+    required string GameIssue = 1;
+}
+
+// 2002 登录游戏
+message HallLoginReq {
+    required string token = 1; // token
+}
+
+// 2002
+message HallLoginRes {
+    required uint32 id = 1; // id
+    required string name = 2; // name
+}
+
+// 2003 开始游戏
+message HallStartGameReq {
+
+}
+
+// 2003
+message HallStartGameRes {
+    required uint32 room_id = 1; // 房间ID
+    required string tcp_addr = 2; // TCP地址
+    required string udp_addr = 3; // UDP地址
+    required string ws_addr = 4; // WS地址
+    required string room_key = 5; // 房间Key
+}
+

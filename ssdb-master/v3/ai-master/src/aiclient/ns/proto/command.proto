@@ -1,0 +1,33 @@
+syntax = "proto2";
+
+package pb;
+
+enum CMD {
+    NONE = 0; // 空协议
+    // 通用协议段: 1000 - 2000
+    ERROR_MSG = 1000; // 错误信息
+    // 大厅协议段: 2001 - 3000
+    GAME_ISSUE = 2001; // 获取版本号
+    HALL_LOGIN = 2002; // 登录游戏
+    HALL_START_GAME = 2003; // 开始游戏
+    // 房间协议段: 3001 - 3100
+    ROOM_LOGIN = 3001; // 登录房间
+    ROOM_PING = 3002; // PING
+    ROOM_ADD_PLAYER = 3004; // 房间加入玩家
+    ROOM_REMOVE_PLAYER = 3005; // 房间移出玩家
+    ROOM_FRAME_NOTIFY = 3006; // 数据帧同步
+    ROOM_LADDER_NOTIFY = 3007; // 同步排行榜
+    ROOM_KILLS_NOTIFY = 3008; // 连杀推送
+    ROOM_RELIVE_PLAYER = 3009; // 玩家复活
+
+    // 房间操作协议: 3101 - 3200
+    ROOM_MOVE = 3101; // 移动
+    ROOM_MOVE_FORCE = 3102; // 移动强制拉扯
+    ROOM_MOVE_FORCE_RES = 3103; // 强制拉扯响应
+    ROOM_STOP = 3105; // 停止
+    ROOM_SPELL = 3106; // 释放技能
+    ROOM_SPELL_LEVEL_UP = 3108; // 技能升级
+
+    // RoomCenter内部协议段: 4001 - 5000
+    RCENTER_REGISTER = 4001; // 注册房间服务器
+}

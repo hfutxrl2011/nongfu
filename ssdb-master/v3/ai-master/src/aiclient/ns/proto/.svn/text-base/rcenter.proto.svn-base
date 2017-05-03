@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package pb;
+
+message RCenterRegisterReq {
+    required string tcp_addr = 1; // 房间TCP地址
+    required string udp_addr = 2; // 房间UDP地址
+    required string ws_addr = 3; // 房间WS地址
+    required string key = 4; // 房间认证key
+}
+
+message RCenterRegisterRes {
+    required uint32 id = 1; // 房间服务器ID
+}

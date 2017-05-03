@@ -1,0 +1,178 @@
+syntax = "proto2";
+
+package pb;
+
+message Vector {
+    required sint32 x = 1;
+    required sint32 z = 2;
+}
+
+// 玩家信息
+message RoomPlayer {
+    required uint32 id = 1; // 用户ID
+    required string nickname = 2; // 游戏昵称
+    required RoomPlayerState state = 3; // 状态
+    required uint32 job  = 4; // 职业
+    required uint32 level = 5; // 等级
+    required Vector pos = 6;// 位置
+    required Vector dir = 7; // 方向
+    required uint32 score = 8; // 积分
+    repeated RoomPlayerSpell spells = 9; // 技能 [<0:普攻> <1,2,3:1,2,3技能>]
+
+}
+
+// 玩家状态
+message RoomPlayerState {
+    required uint32 hp = 1; // 血量
+    required uint32 state = 2; // [3:死亡]
+}
+
+
+// 玩家技能信息
+message RoomPlayerSpell {
+    required uint32 xml_id = 1; // id
+    required uint32 level = 2; // 等级
+    required uint32 cd = 3; // cd
+}
+
+// 玩家道具
+message RoomItem {
+    required uint32 id = 1; // id
+    required uint32 xml_id = 2; // 静态id
+    required Vector pos = 3;// 位置
+}
+
+// 玩家buff
+message RoomBuff {
+    required string id = 1; // id
+    required uint32 xml_id = 2;
+    optional uint32 player_id = 3; // 玩家id
+    optional Vector pos = 4; // 位置
+    optional Vector dir = 5; // 方向
+    required uint32 remain_time = 6; // 剩余时间
+
+}
+
+// 玩家快照
+message RoomSnapShot {
+    repeated RoomPlayer players = 1;
+    repeated RoomItem   items = 2;
+    repeated RoomBuff   buffs = 3;
+}
+
+// 登录
+message RoomLoginReq {
+    required string nickname = 1; // 游戏昵称
+    required uint32 room_id = 2; // 房间ID
+    required string room_key = 3; // 认证key
+    required uint32 job = 4; // 职业
+}
+
+message RoomLoginRes {
+    required uint32 id = 1; // 用户ID
+    required RoomSnapShot snap_shot = 3; // 快照
+}
+
+// 房间加入玩家
+message RoomPlayerAdd {
+    required RoomPlayer player = 1; // 玩家数据
+}
+
+// 房间移出玩家
+message RoomPlayerRemove {
+    required uint32 id = 1; // 玩家ID
+}
+
+// 帧数据
+message Frame {
+    required uint32 cmd = 1; // 指令
+    required bytes data = 2; // 数据
+}
+
+// 数据帧同步
+message RoomFrameNotify {
+    required uint32 frame = 1; // 当前帧
+    repeated Frame list = 2; // 指令列表
+}
+
+// 排行榜通知
+message RoomLadderNotify {
+    message Item {
+        required uint32 id = 1; // 玩家ID
+        required int32 score = 2; // 积分
+        required uint32 kill_times = 3; // 击杀数
+        required uint32 dead_times = 4; // 死亡数
+    }
+    repeated Item items = 1; // 排行记录
+}
+
+// 移动
+message RoomPlayerMoveReq {
+    required Vector pos = 1;// 位置
+    required Vector dir = 2; // 方向
+}
+
+// 强制拉扯
+message RoomPlayerDragRes {
+    required Vector pos = 1;// 位置
+    required Vector dir = 2; // 方向
+}
+
+// 强制拉扯响应
+message RoomPlayerDragEndReq {
+}
+
+// 复活
+message RoomPlayerReliveReq {
+    required uint32 job = 1;
+}
+
+message RoomPlayerReliveRes {
+    required uint32 job = 1; // job
+    required uint32 hp = 2; // hp
+    required uint32 score = 3; // socre
+}
+
+// 停止
+message RoomPlayerStopReq {
+    required Vector pos = 1;// 位置
+    required Vector dir = 2; // 方向
+}
+
+// 技能释放
+message SpellStartReq {
+    required uint32 xml_id = 1; // 技能id
+    required Vector pos = 2;// 位置
+    required Vector dir = 3; // 方向
+}
+
+// 技能升级
+message SpellLevelUpReq {
+    required uint32 xml_id = 1; // 技能id
+}
+
+message SpellLevelUpRes {
+    required RoomPlayerSpell spell = 1; //技能信息
+}
+
+// 击杀通知
+message KillNotify {
+    message KillInfo {
+        required uint32 catalog = 1; // 类型
+        required uint32 number = 2; // 数量
+    }
+    required uint32 player_id = 1; // 玩家id
+    required uint32 killed_id = 2; // 被杀玩家id
+    repeated KillInfo info = 3; // 击杀信息
+}
+
+// 心跳包
+message RoomPingReq {
+}
+
+message RoomPingRes {
+    required uint32  cur_frame = 1; // 服务器当前帧
+}
+
+
+

@@ -1,0 +1,205 @@
+syntax = "proto2";
+package proto;
+
+enum CMD {
+	NONE	= 0;
+	HEART_BEAT = 1;
+	PROTOCOL_STATUS        	  = 2;
+	TEST = 3;
+
+	//登录
+	LOGIN                   	= 2001; // 尝试客户端登陆
+	CREATE_PLAYER				= 2002;
+
+	//COMBAT
+	COMBAT_MATCH				= 3001; //匹配对手
+	COMBAT_MATCH_NOTIFY			= 3002; //匹配结果通知
+	COMBAT_READY 				= 3003; //准备战斗
+	COMBAT_START_NOTIFY 		= 3004; //战斗开始通知
+	COMBAT_MEMBER_DEAD 			= 3005; //玩家死亡
+	COMBAT_MEMBER_OFFLINE_NOTIFY= 3006; //玩家掉线通知
+	COMBAT_FINISH_NOTIFY 		= 3007; //游戏结束通知
+	COMBAT_DATA_SYNC			= 3008; //游戏数据同步
+	COMBAT_MEMBERS_SYNC			= 3009; //玩家列表同步
+	COMBAT_PULL_SYNC			= 3010; //玩家被推位置同步
+	COMBAT_MEMBER_LEAVE			= 3011; //玩家退出战斗
+	COMBAT_PICK_UP_ITEM 		= 3012; //玩家捡起道具
+	COMBAT_SET_POSITION 		= 3013; //玩家位置强制同步
+}
+
+
+enum EC {    // err code
+ 	OK				= 0;
+	ERROR			= 1; // 用来处理非正常逻辑的错误
+	VERSION_UNMATCH = 2; // 协议版本号不匹配
+}
+
+enum VERSION {
+	PROTO	 		= 1; //协议当前版本号
+}
+
+//=========通用结构===========
+//心跳包
+message HeartBeat {
+}
+
+//返回状态
+message ResStatus {
+	optional uint32 kind = 1;
+	optional uint32 modelId = 2;
+	optional uint32 count = 3;
+}
+
+// 统一处理状态码 PROTOCOL_STATUS
+message ProtocolStatusRes {
+	optional uint32 cmd = 1;
+	optional uint32 errCode = 2;
+	optional ResStatus res = 3;
+}
+
+
+// 登陆游戏服务器 LOGIN (3, 2001)
+message LoginReq {
+	required string token = 1;			//验证token:auth+account+district+time+ip
+	required string account = 2;		//账号
+	required uint32 district = 3;		//区服
+	required uint32 version = 4;		//协议的版本号
+	optional uint32 time = 6; 			//客户端时间戳
+	optional string ip = 10;			//IP地址
+	
+	optional bytes extra = 21;	//额外信息
+}
+message LoginRes {
+	required uint64 id = 1; //玩家ID
+	required string name = 2; //玩家名字
+	required uint64 score = 3; //玩家分数
+}
+
+//==========PVP消息结构========
+
+// COMBAT_MATCH
+message CombatMatchReq {
+	required uint32 roleId = 1; //角色ID
+	required string name = 2; //玩家名称
+}
+
+// COMBAT_MATCH_NOTIFY
+message CombatMember {
+	required uint64 id = 1; //玩家ID
+	required string name = 2; //玩家名字
+	required bool ready = 3; //是否已准备就绪
+	required bool dead = 4; //是否已经死亡
+	required uint32 roleId = 5; //角色ID
+	required int32 position = 6; //初始站位(1-9)
+	required bool robot = 7; //是否为机器人
+	required string grade = 8; //段位
+	required uint32 scoreGain = 9; //玩家获得的分数
+	required uint64 score = 10; //玩家总分数
+	required int32 z = 11; //玩家z坐标
+	required int32 points = 12; //得分，捡起道具获得 
+}
+message MapItem {
+	required int32 z = 1;
+	required int32 x = 2;
+	required int32 itemId = 3;
+}
+message CombatMatchNotify {
+	required uint32 combatId = 1; //战斗副本ID
+	repeated CombatMember members = 2; //匹配的成员
+	repeated uint32 maps = 3; //随机产生的地图序列
+	repeated MapItem items = 4; //地图上随机的物品
+}
+
+// COMBAT_READY
+message CombatReadyReq {
+}
+
+// COMBAT_START_NOTIFY
+message CombatStartNotify {
+	required uint64 nowTime = 1; //同步时间
+}
+
+// COMBAT_MEMBER_DEAD
+message CombatMemberDeadReq {
+	required uint32 deadReason = 1; //死亡原因
+}
+
+// COMBAT_MEMBER_DEAD_NOTIFY
+message CombatMemberDeadNotify {
+	required uint64 id = 1; //玩家ID
+	required uint32 deadReason = 2; //死亡原因
+}
+
+// COMBAT_MEMBER_OFFLINE_NOTIFY
+message CombatMemberOfflineNotify {
+	required uint64 id = 1; //掉线的玩家ID
+}
+
+// COMBAT_FINISH_NOTIFY
+message CombatFinishNotify {
+	required uint32 combatId = 1; //战斗副本ID
+	repeated CombatMember members = 2; //匹配的成员
+}
+
+// COMBAT_DATA_SYNC
+message CombatData {
+	required int32 x = 1;
+	required int32 z = 2;
+	required int32 direction = 3;
+}
+message CombatDataSync {
+	required uint64 id = 1; //玩家ID
+	required CombatData data = 2; //同步的数据
+	required uint64 robotId = 3; //上传的是机器人的数据时，该值为机器人ID
+}
+
+// COMBAT_MEMBERS_SYNC
+message CombatMembersSync {
+	required uint32 combatId = 1; //战斗副本ID
+	repeated CombatMember members = 2; //战斗成员
+}
+
+// COMBAT_PULL_SYNC
+message Position {
+	required int32 x = 1;
+	required int32 z = 2;
+	required int32 direction = 3;
+}
+
+message PositionPair {
+	required Position from = 1;
+	required Position to = 2;
+}
+
+message CombatPullSync {
+	required uint64 sourceId = 1; //推的玩家ID
+	required uint64 targetId = 2; //被推玩家ID
+	required PositionPair source = 3; //推的玩家位置信息
+	required PositionPair target = 4; //被推玩家位置信息
+}
+
+// COMBAT_MEMBER_LEAVE
+message CombatMemberLeave {
+	required uint64 id = 1; //离开的玩家ID
+}
+
+// COMBAT_PICK_UP_ITEM
+message CombatPickUpItemReq {
+	required uint64 id = 1; //玩家ID
+	required int32 x = 2;
+	required int32 z = 3;
+	required uint64 robotId = 4;
+}
+message CombatPickUpItemRes {
+	required uint64 id = 1;
+	required int32 x = 2;
+	required int32 z = 3;
+	required uint64 robotId = 4;
+}
+
+// COMBAT_SET_POSTION
+message CombatSetPositionRes {
+	required uint64 id = 1;
+	required int32 x = 2;
+	required int32 z = 3;
+}

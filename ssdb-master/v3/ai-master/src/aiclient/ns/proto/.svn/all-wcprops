@@ -1,0 +1,83 @@
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto
+END
+protoc.sh
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ns_tech/!svn/ver/1556/AEProject/IGame/Backend/proto/protoc.sh
+END
+command.proto
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/command.proto
+END
+dbserver_rpc.proto
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/ns_tech/!svn/ver/1556/AEProject/IGame/Backend/proto/dbserver_rpc.proto
+END
+hall.proto
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/hall.proto
+END
+rcenter.proto
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/ns_tech/!svn/ver/1556/AEProject/IGame/Backend/proto/rcenter.proto
+END
+hall_rpc.proto
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/ns_tech/!svn/ver/1556/AEProject/IGame/Backend/proto/hall_rpc.proto
+END
+rcenter_rpc.proto
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ns_tech/!svn/ver/1556/AEProject/IGame/Backend/proto/rcenter_rpc.proto
+END
+common.proto
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/ns_tech/!svn/ver/1556/AEProject/IGame/Backend/proto/common.proto
+END
+export.sh
+K 25
+svn:wc:ra_dav:version-url
+V 62
+/ns_tech/!svn/ver/1744/AEProject/IGame/Backend/proto/export.sh
+END
+error.proto
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/ns_tech/!svn/ver/2474/AEProject/IGame/Backend/proto/error.proto
+END
+game.proto.export
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/game.proto.export
+END
+room_scene.proto
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/ns_tech/!svn/ver/2369/AEProject/IGame/Backend/proto/room_scene.proto
+END
+room.proto
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/room.proto
+END

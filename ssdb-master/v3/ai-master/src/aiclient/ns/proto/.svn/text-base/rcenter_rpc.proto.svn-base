@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package pb;
+
+service RCenterService {
+    rpc GetRoom (RpcGetRoomReq) returns (RpcGetRoomRes) {
+    }
+}
+
+message RpcGetRoomReq {
+    uint32 user_id = 1; // 玩家ID
+    uint32 room_id = 2; // 房间ID[如果为0，则自动匹配房间]
+}
+
+message RpcGetRoomRes {
+    uint32 room_id = 1; // 房间ID
+    string tcp_addr = 2; // TCP地址
+    string udp_addr = 3; // UPD地址
+    string ws_addr = 4; // WS地址
+    string room_key = 5; // 房间认证key
+}

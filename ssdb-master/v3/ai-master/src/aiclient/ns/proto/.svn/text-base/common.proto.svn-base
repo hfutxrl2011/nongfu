@@ -1,0 +1,9 @@
+syntax = "proto2";
+
+package pb;
+
+// 错误信息
+message ErrorMsg {
+    required uint32 command = 1; // 命令
+    required uint32 error_code = 2; // 错误码
+}

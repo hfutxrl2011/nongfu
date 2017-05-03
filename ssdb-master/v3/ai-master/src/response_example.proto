@@ -1,0 +1,11 @@
+// [START declaration]
+syntax = "proto3";
+// [END declaration]
+
+// [START messages]
+message request_example_res_t {
+	int32 error_code = 1;
+	string error_info = 2;
+	string return_data = 3;
+}
+// [END messages]

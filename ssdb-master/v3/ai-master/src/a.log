@@ -1,0 +1,10 @@
+make -C net
+make[1]: Entering directory `/home/work/newpro/3.0/cproject_common/ai-master/src/net'
+ar -cru ./libnet.a server.o proc.o worker.o fde.o link.o
+make[1]: Leaving directory `/home/work/newpro/3.0/cproject_common/ai-master/src/net'
+make -C util
+make[1]: Entering directory `/home/work/newpro/3.0/cproject_common/ai-master/src/util'
+ar -cru ./libutil.a log.o config.o app.o thread_mem.o signal.o
+make[1]: Leaving directory `/home/work/newpro/3.0/cproject_common/ai-master/src/util'
+#make -C client
+g++ -o ai-server proc_kv.o serv.o ai-server.o response_example.pb.o request_example.pb.o ./net/libnet.a ./util/libutil.a   -pthread "/home/work/newpro/3.0/cproject_common/ai-master/deps/jemalloc-3.3.1/lib/libjemalloc.a" 

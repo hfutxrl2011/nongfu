@@ -1,0 +1,102 @@
+syntax = "proto2";
+
+package pb;
+
+import "room.proto";
+
+// 帧同步指令
+enum FRAME {
+    CMD_NONE = 0; // 空指令
+    CMD_MOVE = 1; // 移动
+    CMD_STOP = 2; // 停止
+    CMD_DEATH = 3; // 死亡
+    CMD_RELIVE = 4; // 复活
+    CMD_ACTION_START = 5; // 技能动作释放
+    CMD_BUFF_START = 6; // BUFF释放
+    CMD_BUFF_REMOVE = 7; // BUFF移除
+    CMD_SPELL_SATE = 8; // 技能状态
+    CMD_SCENE_ITEM_CREATE = 9; // 场景道具创建
+    CMD_SCENE_TIEM_REMOVE = 10; // 场景道具移除
+    CMD_PLAYER_LEVEL_UP = 11; // 玩家升级
+    CMD_BUFF_STATE = 12; // BUFF状态
+}
+
+// 移动指令
+message FrameMove {
+    required uint32 id = 1; // 玩家ID
+    required Vector pos = 2; // 位置
+    required Vector dir = 3; // 方向
+}
+
+// 停止指令
+message FrameStop {
+    required uint32 id = 1; // 玩家ID
+    required Vector pos = 2; // 位置
+    required Vector dir = 3; // 方向
+}
+
+// 死亡指令
+message FrameDeath {
+    required uint32 id = 1; // 玩家Id
+    required uint32 murderer_id = 2; // 凶手id
+    required uint32 murderer_cur_socre = 3; // 凶手当前的积分
+    required uint32 owner_cur_socre = 4; // 玩家当前的积分 
+}
+
+// 复活指令
+message FrameRelive {
+    required RoomPlayer player = 1; // 玩家信息
+}
+
+// 技能动作开始
+message FrameActionStart {
+    required uint32 player_id = 1; // 玩家id
+    required uint32 spell_id = 2; // 技能id
+    required uint32 action_id = 3; // 动作id
+    required uint32 left_cd = 4; // 剩余cd
+}
+
+// 释放buff通知
+message  FrameStartBuff {
+    required RoomBuff buff = 1; // buff信息
+}
+
+// 移除buff通知
+message FrameRemoveBuff {
+    optional uint32 player_id = 1; // player_id
+    required string buff_id = 2; // buff_id
+
+}
+
+// 技能状态
+message FrameSpellState {
+    required uint32 player_id = 1; // player_id
+    required string action_id = 2; // action id
+    required uint32 state = 3; // 状态［0:打断,1:cd中,2:锁定中,3:结束］
+    required string cur_gen_id = 4; // 目前生成到的id
+}
+
+// 场景道具创建
+message FrameSceneItemCreate {
+   required RoomItem item = 1; // 场景道具
+}
+
+// 场景道具移除
+message FrameSceneItemRemove {
+    required uint32 id = 1; // id
+}
+
+// 玩家升级推送
+message FrameLevelUp {
+    required uint32 player_id = 1; // 玩家id
+    required uint32 player_level = 2; // 玩家等级
+    required uint32 player_spell_point = 3; // 玩家当前拥有的技能点
+}
+
+// buff状态推送
+message FramePlayerState {
+    required uint32 player_id = 1; // 玩家id
+    required RoomPlayerState state = 2;  // 状态
+}
+
+
