@@ -24,7 +24,7 @@ message RoomPlayer {
 // 玩家状态
 message RoomPlayerState {
     required uint32 hp = 1; // 血量
-    required uint32 state = 2; // [3:死亡]
+    required uint32 speed = 2; // 速度
 }
 
 
@@ -127,12 +127,6 @@ message RoomPlayerReliveReq {
     required uint32 job = 1;
 }
 
-message RoomPlayerReliveRes {
-    required uint32 job = 1; // job
-    required uint32 hp = 2; // hp
-    required uint32 score = 3; // socre
-}
-
 // 停止
 message RoomPlayerStopReq {
     required Vector pos = 1;// 位置
@@ -149,10 +143,6 @@ message SpellStartReq {
 // 技能升级
 message SpellLevelUpReq {
     required uint32 xml_id = 1; // 技能id
-}
-
-message SpellLevelUpRes {
-    required RoomPlayerSpell spell = 1; //技能信息
 }
 
 // 击杀通知

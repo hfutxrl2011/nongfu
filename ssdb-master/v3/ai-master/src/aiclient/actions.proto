@@ -1,0 +1,22 @@
+syntax = "proto2";
+package pb;
+
+//动作列表
+message ActionList {
+    repeated Action actionitem = 1; // 动作
+}
+//向量
+message ActionVector {
+    required sint32 x = 1;
+    required sint32 z = 2;
+}
+//动作
+message Action {
+	required string action = 1; // 动作描述
+    required ActionVector pos = 2;// 位置
+    required ActionVector dir = 3; // 方向
+	required uint32 xml_id  = 4; // 技能
+    required uint32 job = 5; // 职业
+}
+
+

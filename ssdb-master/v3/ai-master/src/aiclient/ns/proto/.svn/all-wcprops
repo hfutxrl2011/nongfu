@@ -1,7 +1,7 @@
 K 25
 svn:wc:ra_dav:version-url
 V 52
-/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto
+/ns_tech/!svn/ver/2649/AEProject/IGame/Backend/proto
 END
 protoc.sh
 K 25
@@ -13,7 +13,7 @@ command.proto
 K 25
 svn:wc:ra_dav:version-url
 V 66
-/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/command.proto
+/ns_tech/!svn/ver/2643/AEProject/IGame/Backend/proto/command.proto
 END
 dbserver_rpc.proto
 K 25
@@ -67,17 +67,17 @@ game.proto.export
 K 25
 svn:wc:ra_dav:version-url
 V 70
-/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/game.proto.export
+/ns_tech/!svn/ver/2649/AEProject/IGame/Backend/proto/game.proto.export
 END
 room_scene.proto
 K 25
 svn:wc:ra_dav:version-url
 V 69
-/ns_tech/!svn/ver/2369/AEProject/IGame/Backend/proto/room_scene.proto
+/ns_tech/!svn/ver/2649/AEProject/IGame/Backend/proto/room_scene.proto
 END
 room.proto
 K 25
 svn:wc:ra_dav:version-url
 V 63
-/ns_tech/!svn/ver/2516/AEProject/IGame/Backend/proto/room.proto
+/ns_tech/!svn/ver/2643/AEProject/IGame/Backend/proto/room.proto
 END

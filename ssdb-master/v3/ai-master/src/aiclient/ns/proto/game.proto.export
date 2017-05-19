@@ -9,23 +9,24 @@ enum CMD {
     GAME_ISSUE = 2001; // 获取版本号
     HALL_LOGIN = 2002; // 登录游戏
     HALL_START_GAME = 2003; // 开始游戏
+
     // 房间协议段: 3001 - 3100
     ROOM_LOGIN = 3001; // 登录房间
     ROOM_PING = 3002; // PING
-    ROOM_ADD_PLAYER = 3004; // 房间加入玩家
-    ROOM_REMOVE_PLAYER = 3005; // 房间移出玩家
+    ROOM_PLAYER_ADD = 3004; // 房间加入玩家
+    ROOM_PLAYER_REMOVE = 3005; // 房间移出玩家
     ROOM_FRAME_NOTIFY = 3006; // 数据帧同步
     ROOM_LADDER_NOTIFY = 3007; // 同步排行榜
     ROOM_KILLS_NOTIFY = 3008; // 连杀推送
-    ROOM_RELIVE_PLAYER = 3009; // 玩家复活
+    ROOM_PLAYER_RELIVE = 3009; // 玩家复活
+    ROOM_PLAYER_MOVE = 3010; // 移动
+    ROOM_PLAYER_STOP = 3011; // 停止
+    ROOM_PLAYER_SPELL = 3012; // 释放技能
+    ROOM_SPELL_LEVEL_UP = 3013; // 技能升级
 
-    // 房间操作协议: 3101 - 3200
-    ROOM_MOVE = 3101; // 移动
-    ROOM_MOVE_FORCE = 3102; // 移动强制拉扯
-    ROOM_MOVE_FORCE_RES = 3103; // 强制拉扯响应
-    ROOM_STOP = 3105; // 停止
-    ROOM_SPELL = 3106; // 释放技能
-    ROOM_SPELL_LEVEL_UP = 3108; // 技能升级
+   // 房间校验： 3101 - 3200
+    ROOM_PLAYER_DRAG = 3101; // 移动强制拉扯
+    ROOM_PLAYER_DRAG_END = 3102; // 强制拉扯响应
 
     // RoomCenter内部协议段: 4001 - 5000
     RCENTER_REGISTER = 4001; // 注册房间服务器
@@ -131,7 +132,7 @@ message RoomPlayer {
 // 玩家状态
 message RoomPlayerState {
     required uint32 hp = 1; // 血量
-    required uint32 state = 2; // [3:死亡]
+    required uint32 speed = 2; // 速度
 }
 
 
@@ -234,12 +235,6 @@ message RoomPlayerReliveReq {
     required uint32 job = 1;
 }
 
-message RoomPlayerReliveRes {
-    required uint32 job = 1; // job
-    required uint32 hp = 2; // hp
-    required uint32 score = 3; // socre
-}
-
 // 停止
 message RoomPlayerStopReq {
     required Vector pos = 1;// 位置
@@ -256,10 +251,6 @@ message SpellStartReq {
 // 技能升级
 message SpellLevelUpReq {
     required uint32 xml_id = 1; // 技能id
-}
-
-message SpellLevelUpRes {
-    required RoomPlayerSpell spell = 1; //技能信息
 }
 
 // 击杀通知
@@ -299,8 +290,10 @@ enum FRAME {
     CMD_SPELL_SATE = 8; // 技能状态
     CMD_SCENE_ITEM_CREATE = 9; // 场景道具创建
     CMD_SCENE_TIEM_REMOVE = 10; // 场景道具移除
-    CMD_PLAYER_LEVEL_UP = 11; // 玩家升级
-    CMD_BUFF_STATE = 12; // BUFF状态
+    CMD_LEVEL_UP = 11; // 玩家升级
+    CMD_BASE_STATE = 12; // BUFF状态
+    CMD_SPELL_LEVEL_UP = 13; // 技能升级
+    CMD_MOVE_TEST = 14; // 移动测试
 }
 
 // 移动指令
@@ -308,6 +301,14 @@ message FrameMove {
     required uint32 id = 1; // 玩家ID
     required Vector pos = 2; // 位置
     required Vector dir = 3; // 方向
+}
+
+// 测试移动指令
+message FrameMoveTest{
+    required uint32 id = 1; // 玩家id
+    required Vector pos = 2; // 位置
+    required Vector dir = 3; // 方向
+    required Vector pre_pos = 4; // 预测位置
 }
 
 // 停止指令
@@ -358,6 +359,12 @@ message FrameSpellState {
     required string cur_gen_id = 4; // 目前生成到的id
 }
 
+// 技能等级
+message FrameSpellLevel {
+    required uint32 player_id = 1;
+    repeated RoomPlayerSpell spells = 2; // 技能 [<0:普攻> <1,2,3:1,2,3技能>]
+}
+
 // 场景道具创建
 message FrameSceneItemCreate {
    required RoomItem item = 1; // 场景道具
@@ -375,8 +382,8 @@ message FrameLevelUp {
     required uint32 player_spell_point = 3; // 玩家当前拥有的技能点
 }
 
-// buff状态推送
-message FramePlayerState {
+// 玩家状态推送
+message FramePlayerBaseState {
     required uint32 player_id = 1; // 玩家id
     required RoomPlayerState state = 2;  // 状态
 }

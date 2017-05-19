@@ -49,9 +49,12 @@ extern FrameLevelUpDefaultTypeInternal _FrameLevelUp_default_instance_;
 class FrameMove;
 class FrameMoveDefaultTypeInternal;
 extern FrameMoveDefaultTypeInternal _FrameMove_default_instance_;
-class FramePlayerState;
-class FramePlayerStateDefaultTypeInternal;
-extern FramePlayerStateDefaultTypeInternal _FramePlayerState_default_instance_;
+class FrameMoveTest;
+class FrameMoveTestDefaultTypeInternal;
+extern FrameMoveTestDefaultTypeInternal _FrameMoveTest_default_instance_;
+class FramePlayerBaseState;
+class FramePlayerBaseStateDefaultTypeInternal;
+extern FramePlayerBaseStateDefaultTypeInternal _FramePlayerBaseState_default_instance_;
 class FrameRelive;
 class FrameReliveDefaultTypeInternal;
 extern FrameReliveDefaultTypeInternal _FrameRelive_default_instance_;
@@ -64,6 +67,9 @@ extern FrameSceneItemCreateDefaultTypeInternal _FrameSceneItemCreate_default_ins
 class FrameSceneItemRemove;
 class FrameSceneItemRemoveDefaultTypeInternal;
 extern FrameSceneItemRemoveDefaultTypeInternal _FrameSceneItemRemove_default_instance_;
+class FrameSpellLevel;
+class FrameSpellLevelDefaultTypeInternal;
+extern FrameSpellLevelDefaultTypeInternal _FrameSpellLevel_default_instance_;
 class FrameSpellState;
 class FrameSpellStateDefaultTypeInternal;
 extern FrameSpellStateDefaultTypeInternal _FrameSpellState_default_instance_;
@@ -148,9 +154,6 @@ extern RoomPlayerMoveReqDefaultTypeInternal _RoomPlayerMoveReq_default_instance_
 class RoomPlayerReliveReq;
 class RoomPlayerReliveReqDefaultTypeInternal;
 extern RoomPlayerReliveReqDefaultTypeInternal _RoomPlayerReliveReq_default_instance_;
-class RoomPlayerReliveRes;
-class RoomPlayerReliveResDefaultTypeInternal;
-extern RoomPlayerReliveResDefaultTypeInternal _RoomPlayerReliveRes_default_instance_;
 class RoomPlayerRemove;
 class RoomPlayerRemoveDefaultTypeInternal;
 extern RoomPlayerRemoveDefaultTypeInternal _RoomPlayerRemove_default_instance_;
@@ -169,9 +172,6 @@ extern RoomSnapShotDefaultTypeInternal _RoomSnapShot_default_instance_;
 class SpellLevelUpReq;
 class SpellLevelUpReqDefaultTypeInternal;
 extern SpellLevelUpReqDefaultTypeInternal _SpellLevelUpReq_default_instance_;
-class SpellLevelUpRes;
-class SpellLevelUpResDefaultTypeInternal;
-extern SpellLevelUpResDefaultTypeInternal _SpellLevelUpRes_default_instance_;
 class SpellStartReq;
 class SpellStartReqDefaultTypeInternal;
 extern SpellStartReqDefaultTypeInternal _SpellStartReq_default_instance_;
@@ -201,18 +201,18 @@ enum CMD {
   HALL_START_GAME = 2003,
   ROOM_LOGIN = 3001,
   ROOM_PING = 3002,
-  ROOM_ADD_PLAYER = 3004,
-  ROOM_REMOVE_PLAYER = 3005,
+  ROOM_PLAYER_ADD = 3004,
+  ROOM_PLAYER_REMOVE = 3005,
   ROOM_FRAME_NOTIFY = 3006,
   ROOM_LADDER_NOTIFY = 3007,
   ROOM_KILLS_NOTIFY = 3008,
-  ROOM_RELIVE_PLAYER = 3009,
-  ROOM_MOVE = 3101,
-  ROOM_MOVE_FORCE = 3102,
-  ROOM_MOVE_FORCE_RES = 3103,
-  ROOM_STOP = 3105,
-  ROOM_SPELL = 3106,
-  ROOM_SPELL_LEVEL_UP = 3108,
+  ROOM_PLAYER_RELIVE = 3009,
+  ROOM_PLAYER_MOVE = 3010,
+  ROOM_PLAYER_STOP = 3011,
+  ROOM_PLAYER_SPELL = 3012,
+  ROOM_SPELL_LEVEL_UP = 3013,
+  ROOM_PLAYER_DRAG = 3101,
+  ROOM_PLAYER_DRAG_END = 3102,
   RCENTER_REGISTER = 4001
 };
 bool CMD_IsValid(int value);
@@ -273,12 +273,14 @@ enum FRAME {
   CMD_SPELL_SATE = 8,
   CMD_SCENE_ITEM_CREATE = 9,
   CMD_SCENE_TIEM_REMOVE = 10,
-  CMD_PLAYER_LEVEL_UP = 11,
-  CMD_BUFF_STATE = 12
+  CMD_LEVEL_UP = 11,
+  CMD_BASE_STATE = 12,
+  CMD_SPELL_LEVEL_UP = 13,
+  CMD_MOVE_TEST = 14
 };
 bool FRAME_IsValid(int value);
 const FRAME FRAME_MIN = CMD_NONE;
-const FRAME FRAME_MAX = CMD_BUFF_STATE;
+const FRAME FRAME_MAX = CMD_MOVE_TEST;
 const int FRAME_ARRAYSIZE = FRAME_MAX + 1;
 
 const ::google::protobuf::EnumDescriptor* FRAME_descriptor();
@@ -1703,19 +1705,19 @@ class RoomPlayerState : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::uint32 hp() const;
   void set_hp(::google::protobuf::uint32 value);
 
-  // required uint32 state = 2;
-  bool has_state() const;
-  void clear_state();
-  static const int kStateFieldNumber = 2;
-  ::google::protobuf::uint32 state() const;
-  void set_state(::google::protobuf::uint32 value);
+  // required uint32 speed = 2;
+  bool has_speed() const;
+  void clear_speed();
+  static const int kSpeedFieldNumber = 2;
+  ::google::protobuf::uint32 speed() const;
+  void set_speed(::google::protobuf::uint32 value);
 
   // @@protoc_insertion_point(class_scope:pb.RoomPlayerState)
  private:
   void set_has_hp();
   void clear_has_hp();
-  void set_has_state();
-  void clear_has_state();
+  void set_has_speed();
+  void clear_has_speed();
 
   // helper for ByteSizeLong()
   size_t RequiredFieldsByteSizeFallback() const;
@@ -1724,7 +1726,7 @@ class RoomPlayerState : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 hp_;
-  ::google::protobuf::uint32 state_;
+  ::google::protobuf::uint32 speed_;
   friend struct  protobuf_game_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -3553,124 +3555,6 @@ class RoomPlayerReliveReq : public ::google::protobuf::Message /* @@protoc_inser
 };
 // -------------------------------------------------------------------
 
-class RoomPlayerReliveRes : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.RoomPlayerReliveRes) */ {
- public:
-  RoomPlayerReliveRes();
-  virtual ~RoomPlayerReliveRes();
-
-  RoomPlayerReliveRes(const RoomPlayerReliveRes& from);
-
-  inline RoomPlayerReliveRes& operator=(const RoomPlayerReliveRes& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const RoomPlayerReliveRes& default_instance();
-
-  static inline const RoomPlayerReliveRes* internal_default_instance() {
-    return reinterpret_cast<const RoomPlayerReliveRes*>(
-               &_RoomPlayerReliveRes_default_instance_);
-  }
-
-  void Swap(RoomPlayerReliveRes* other);
-
-  // implements Message ----------------------------------------------
-
-  inline RoomPlayerReliveRes* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  RoomPlayerReliveRes* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const RoomPlayerReliveRes& from);
-  void MergeFrom(const RoomPlayerReliveRes& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
-      const PROTOBUF_FINAL {
-    return InternalSerializeWithCachedSizesToArray(
-        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
-  }
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(RoomPlayerReliveRes* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required uint32 job = 1;
-  bool has_job() const;
-  void clear_job();
-  static const int kJobFieldNumber = 1;
-  ::google::protobuf::uint32 job() const;
-  void set_job(::google::protobuf::uint32 value);
-
-  // required uint32 hp = 2;
-  bool has_hp() const;
-  void clear_hp();
-  static const int kHpFieldNumber = 2;
-  ::google::protobuf::uint32 hp() const;
-  void set_hp(::google::protobuf::uint32 value);
-
-  // required uint32 score = 3;
-  bool has_score() const;
-  void clear_score();
-  static const int kScoreFieldNumber = 3;
-  ::google::protobuf::uint32 score() const;
-  void set_score(::google::protobuf::uint32 value);
-
-  // @@protoc_insertion_point(class_scope:pb.RoomPlayerReliveRes)
- private:
-  void set_has_job();
-  void clear_has_job();
-  void set_has_hp();
-  void clear_has_hp();
-  void set_has_score();
-  void clear_has_score();
-
-  // helper for ByteSizeLong()
-  size_t RequiredFieldsByteSizeFallback() const;
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::HasBits<1> _has_bits_;
-  mutable int _cached_size_;
-  ::google::protobuf::uint32 job_;
-  ::google::protobuf::uint32 hp_;
-  ::google::protobuf::uint32 score_;
-  friend struct  protobuf_game_2eproto::TableStruct;
-};
-// -------------------------------------------------------------------
-
 class RoomPlayerStopReq : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.RoomPlayerStopReq) */ {
  public:
   RoomPlayerStopReq();
@@ -3996,103 +3880,6 @@ class SpellLevelUpReq : public ::google::protobuf::Message /* @@protoc_insertion
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable int _cached_size_;
   ::google::protobuf::uint32 xml_id_;
-  friend struct  protobuf_game_2eproto::TableStruct;
-};
-// -------------------------------------------------------------------
-
-class SpellLevelUpRes : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.SpellLevelUpRes) */ {
- public:
-  SpellLevelUpRes();
-  virtual ~SpellLevelUpRes();
-
-  SpellLevelUpRes(const SpellLevelUpRes& from);
-
-  inline SpellLevelUpRes& operator=(const SpellLevelUpRes& from) {
-    CopyFrom(from);
-    return *this;
-  }
-
-  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
-    return _internal_metadata_.unknown_fields();
-  }
-
-  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
-    return _internal_metadata_.mutable_unknown_fields();
-  }
-
-  static const ::google::protobuf::Descriptor* descriptor();
-  static const SpellLevelUpRes& default_instance();
-
-  static inline const SpellLevelUpRes* internal_default_instance() {
-    return reinterpret_cast<const SpellLevelUpRes*>(
-               &_SpellLevelUpRes_default_instance_);
-  }
-
-  void Swap(SpellLevelUpRes* other);
-
-  // implements Message ----------------------------------------------
-
-  inline SpellLevelUpRes* New() const PROTOBUF_FINAL { return New(NULL); }
-
-  SpellLevelUpRes* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
-  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const SpellLevelUpRes& from);
-  void MergeFrom(const SpellLevelUpRes& from);
-  void Clear() PROTOBUF_FINAL;
-  bool IsInitialized() const PROTOBUF_FINAL;
-
-  size_t ByteSizeLong() const PROTOBUF_FINAL;
-  bool MergePartialFromCodedStream(
-      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
-  void SerializeWithCachedSizes(
-      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
-      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
-  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
-      const PROTOBUF_FINAL {
-    return InternalSerializeWithCachedSizesToArray(
-        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
-  }
-  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
-  private:
-  void SharedCtor();
-  void SharedDtor();
-  void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(SpellLevelUpRes* other);
-  private:
-  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
-    return NULL;
-  }
-  inline void* MaybeArenaPtr() const {
-    return NULL;
-  }
-  public:
-
-  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
-
-  // nested types ----------------------------------------------------
-
-  // accessors -------------------------------------------------------
-
-  // required .pb.RoomPlayerSpell spell = 1;
-  bool has_spell() const;
-  void clear_spell();
-  static const int kSpellFieldNumber = 1;
-  const ::pb::RoomPlayerSpell& spell() const;
-  ::pb::RoomPlayerSpell* mutable_spell();
-  ::pb::RoomPlayerSpell* release_spell();
-  void set_allocated_spell(::pb::RoomPlayerSpell* spell);
-
-  // @@protoc_insertion_point(class_scope:pb.SpellLevelUpRes)
- private:
-  void set_has_spell();
-  void clear_has_spell();
-
-  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::internal::HasBits<1> _has_bits_;
-  mutable int _cached_size_;
-  ::pb::RoomPlayerSpell* spell_;
   friend struct  protobuf_game_2eproto::TableStruct;
 };
 // -------------------------------------------------------------------
@@ -4625,6 +4412,140 @@ class FrameMove : public ::google::protobuf::Message /* @@protoc_insertion_point
   mutable int _cached_size_;
   ::pb::Vector* pos_;
   ::pb::Vector* dir_;
+  ::google::protobuf::uint32 id_;
+  friend struct  protobuf_game_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
+class FrameMoveTest : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.FrameMoveTest) */ {
+ public:
+  FrameMoveTest();
+  virtual ~FrameMoveTest();
+
+  FrameMoveTest(const FrameMoveTest& from);
+
+  inline FrameMoveTest& operator=(const FrameMoveTest& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FrameMoveTest& default_instance();
+
+  static inline const FrameMoveTest* internal_default_instance() {
+    return reinterpret_cast<const FrameMoveTest*>(
+               &_FrameMoveTest_default_instance_);
+  }
+
+  void Swap(FrameMoveTest* other);
+
+  // implements Message ----------------------------------------------
+
+  inline FrameMoveTest* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  FrameMoveTest* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const FrameMoveTest& from);
+  void MergeFrom(const FrameMoveTest& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(FrameMoveTest* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // required .pb.Vector pos = 2;
+  bool has_pos() const;
+  void clear_pos();
+  static const int kPosFieldNumber = 2;
+  const ::pb::Vector& pos() const;
+  ::pb::Vector* mutable_pos();
+  ::pb::Vector* release_pos();
+  void set_allocated_pos(::pb::Vector* pos);
+
+  // required .pb.Vector dir = 3;
+  bool has_dir() const;
+  void clear_dir();
+  static const int kDirFieldNumber = 3;
+  const ::pb::Vector& dir() const;
+  ::pb::Vector* mutable_dir();
+  ::pb::Vector* release_dir();
+  void set_allocated_dir(::pb::Vector* dir);
+
+  // required .pb.Vector pre_pos = 4;
+  bool has_pre_pos() const;
+  void clear_pre_pos();
+  static const int kPrePosFieldNumber = 4;
+  const ::pb::Vector& pre_pos() const;
+  ::pb::Vector* mutable_pre_pos();
+  ::pb::Vector* release_pre_pos();
+  void set_allocated_pre_pos(::pb::Vector* pre_pos);
+
+  // required uint32 id = 1;
+  bool has_id() const;
+  void clear_id();
+  static const int kIdFieldNumber = 1;
+  ::google::protobuf::uint32 id() const;
+  void set_id(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.FrameMoveTest)
+ private:
+  void set_has_id();
+  void clear_has_id();
+  void set_has_pos();
+  void clear_has_pos();
+  void set_has_dir();
+  void clear_has_dir();
+  void set_has_pre_pos();
+  void clear_has_pre_pos();
+
+  // helper for ByteSizeLong()
+  size_t RequiredFieldsByteSizeFallback() const;
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable int _cached_size_;
+  ::pb::Vector* pos_;
+  ::pb::Vector* dir_;
+  ::pb::Vector* pre_pos_;
   ::google::protobuf::uint32 id_;
   friend struct  protobuf_game_2eproto::TableStruct;
 };
@@ -5459,6 +5380,114 @@ class FrameSpellState : public ::google::protobuf::Message /* @@protoc_insertion
 };
 // -------------------------------------------------------------------
 
+class FrameSpellLevel : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.FrameSpellLevel) */ {
+ public:
+  FrameSpellLevel();
+  virtual ~FrameSpellLevel();
+
+  FrameSpellLevel(const FrameSpellLevel& from);
+
+  inline FrameSpellLevel& operator=(const FrameSpellLevel& from) {
+    CopyFrom(from);
+    return *this;
+  }
+
+  inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const {
+    return _internal_metadata_.unknown_fields();
+  }
+
+  inline ::google::protobuf::UnknownFieldSet* mutable_unknown_fields() {
+    return _internal_metadata_.mutable_unknown_fields();
+  }
+
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const FrameSpellLevel& default_instance();
+
+  static inline const FrameSpellLevel* internal_default_instance() {
+    return reinterpret_cast<const FrameSpellLevel*>(
+               &_FrameSpellLevel_default_instance_);
+  }
+
+  void Swap(FrameSpellLevel* other);
+
+  // implements Message ----------------------------------------------
+
+  inline FrameSpellLevel* New() const PROTOBUF_FINAL { return New(NULL); }
+
+  FrameSpellLevel* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
+  void CopyFrom(const FrameSpellLevel& from);
+  void MergeFrom(const FrameSpellLevel& from);
+  void Clear() PROTOBUF_FINAL;
+  bool IsInitialized() const PROTOBUF_FINAL;
+
+  size_t ByteSizeLong() const PROTOBUF_FINAL;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) PROTOBUF_FINAL;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const PROTOBUF_FINAL;
+  ::google::protobuf::uint8* SerializeWithCachedSizesToArray(::google::protobuf::uint8* output)
+      const PROTOBUF_FINAL {
+    return InternalSerializeWithCachedSizesToArray(
+        ::google::protobuf::io::CodedOutputStream::IsDefaultSerializationDeterministic(), output);
+  }
+  int GetCachedSize() const PROTOBUF_FINAL { return _cached_size_; }
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const PROTOBUF_FINAL;
+  void InternalSwap(FrameSpellLevel* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const PROTOBUF_FINAL;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  // repeated .pb.RoomPlayerSpell spells = 2;
+  int spells_size() const;
+  void clear_spells();
+  static const int kSpellsFieldNumber = 2;
+  const ::pb::RoomPlayerSpell& spells(int index) const;
+  ::pb::RoomPlayerSpell* mutable_spells(int index);
+  ::pb::RoomPlayerSpell* add_spells();
+  ::google::protobuf::RepeatedPtrField< ::pb::RoomPlayerSpell >*
+      mutable_spells();
+  const ::google::protobuf::RepeatedPtrField< ::pb::RoomPlayerSpell >&
+      spells() const;
+
+  // required uint32 player_id = 1;
+  bool has_player_id() const;
+  void clear_player_id();
+  static const int kPlayerIdFieldNumber = 1;
+  ::google::protobuf::uint32 player_id() const;
+  void set_player_id(::google::protobuf::uint32 value);
+
+  // @@protoc_insertion_point(class_scope:pb.FrameSpellLevel)
+ private:
+  void set_has_player_id();
+  void clear_has_player_id();
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::HasBits<1> _has_bits_;
+  mutable int _cached_size_;
+  ::google::protobuf::RepeatedPtrField< ::pb::RoomPlayerSpell > spells_;
+  ::google::protobuf::uint32 player_id_;
+  friend struct  protobuf_game_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class FrameSceneItemCreate : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.FrameSceneItemCreate) */ {
  public:
   FrameSceneItemCreate();
@@ -5769,14 +5798,14 @@ class FrameLevelUp : public ::google::protobuf::Message /* @@protoc_insertion_po
 };
 // -------------------------------------------------------------------
 
-class FramePlayerState : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.FramePlayerState) */ {
+class FramePlayerBaseState : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:pb.FramePlayerBaseState) */ {
  public:
-  FramePlayerState();
-  virtual ~FramePlayerState();
+  FramePlayerBaseState();
+  virtual ~FramePlayerBaseState();
 
-  FramePlayerState(const FramePlayerState& from);
+  FramePlayerBaseState(const FramePlayerBaseState& from);
 
-  inline FramePlayerState& operator=(const FramePlayerState& from) {
+  inline FramePlayerBaseState& operator=(const FramePlayerBaseState& from) {
     CopyFrom(from);
     return *this;
   }
@@ -5790,24 +5819,24 @@ class FramePlayerState : public ::google::protobuf::Message /* @@protoc_insertio
   }
 
   static const ::google::protobuf::Descriptor* descriptor();
-  static const FramePlayerState& default_instance();
+  static const FramePlayerBaseState& default_instance();
 
-  static inline const FramePlayerState* internal_default_instance() {
-    return reinterpret_cast<const FramePlayerState*>(
-               &_FramePlayerState_default_instance_);
+  static inline const FramePlayerBaseState* internal_default_instance() {
+    return reinterpret_cast<const FramePlayerBaseState*>(
+               &_FramePlayerBaseState_default_instance_);
   }
 
-  void Swap(FramePlayerState* other);
+  void Swap(FramePlayerBaseState* other);
 
   // implements Message ----------------------------------------------
 
-  inline FramePlayerState* New() const PROTOBUF_FINAL { return New(NULL); }
+  inline FramePlayerBaseState* New() const PROTOBUF_FINAL { return New(NULL); }
 
-  FramePlayerState* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
+  FramePlayerBaseState* New(::google::protobuf::Arena* arena) const PROTOBUF_FINAL;
   void CopyFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
   void MergeFrom(const ::google::protobuf::Message& from) PROTOBUF_FINAL;
-  void CopyFrom(const FramePlayerState& from);
-  void MergeFrom(const FramePlayerState& from);
+  void CopyFrom(const FramePlayerBaseState& from);
+  void MergeFrom(const FramePlayerBaseState& from);
   void Clear() PROTOBUF_FINAL;
   bool IsInitialized() const PROTOBUF_FINAL;
 
@@ -5828,7 +5857,7 @@ class FramePlayerState : public ::google::protobuf::Message /* @@protoc_insertio
   void SharedCtor();
   void SharedDtor();
   void SetCachedSize(int size) const PROTOBUF_FINAL;
-  void InternalSwap(FramePlayerState* other);
+  void InternalSwap(FramePlayerBaseState* other);
   private:
   inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
     return NULL;
@@ -5860,7 +5889,7 @@ class FramePlayerState : public ::google::protobuf::Message /* @@protoc_insertio
   ::google::protobuf::uint32 player_id() const;
   void set_player_id(::google::protobuf::uint32 value);
 
-  // @@protoc_insertion_point(class_scope:pb.FramePlayerState)
+  // @@protoc_insertion_point(class_scope:pb.FramePlayerBaseState)
  private:
   void set_has_player_id();
   void clear_has_player_id();
@@ -7126,28 +7155,28 @@ inline void RoomPlayerState::set_hp(::google::protobuf::uint32 value) {
   // @@protoc_insertion_point(field_set:pb.RoomPlayerState.hp)
 }
 
-// required uint32 state = 2;
-inline bool RoomPlayerState::has_state() const {
+// required uint32 speed = 2;
+inline bool RoomPlayerState::has_speed() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void RoomPlayerState::set_has_state() {
+inline void RoomPlayerState::set_has_speed() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void RoomPlayerState::clear_has_state() {
+inline void RoomPlayerState::clear_has_speed() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void RoomPlayerState::clear_state() {
-  state_ = 0u;
-  clear_has_state();
+inline void RoomPlayerState::clear_speed() {
+  speed_ = 0u;
+  clear_has_speed();
 }
-inline ::google::protobuf::uint32 RoomPlayerState::state() const {
-  // @@protoc_insertion_point(field_get:pb.RoomPlayerState.state)
-  return state_;
+inline ::google::protobuf::uint32 RoomPlayerState::speed() const {
+  // @@protoc_insertion_point(field_get:pb.RoomPlayerState.speed)
+  return speed_;
 }
-inline void RoomPlayerState::set_state(::google::protobuf::uint32 value) {
-  set_has_state();
-  state_ = value;
-  // @@protoc_insertion_point(field_set:pb.RoomPlayerState.state)
+inline void RoomPlayerState::set_speed(::google::protobuf::uint32 value) {
+  set_has_speed();
+  speed_ = value;
+  // @@protoc_insertion_point(field_set:pb.RoomPlayerState.speed)
 }
 
 // -------------------------------------------------------------------
@@ -8475,82 +8504,6 @@ inline void RoomPlayerReliveReq::set_job(::google::protobuf::uint32 value) {
 
 // -------------------------------------------------------------------
 
-// RoomPlayerReliveRes
-
-// required uint32 job = 1;
-inline bool RoomPlayerReliveRes::has_job() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void RoomPlayerReliveRes::set_has_job() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void RoomPlayerReliveRes::clear_has_job() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void RoomPlayerReliveRes::clear_job() {
-  job_ = 0u;
-  clear_has_job();
-}
-inline ::google::protobuf::uint32 RoomPlayerReliveRes::job() const {
-  // @@protoc_insertion_point(field_get:pb.RoomPlayerReliveRes.job)
-  return job_;
-}
-inline void RoomPlayerReliveRes::set_job(::google::protobuf::uint32 value) {
-  set_has_job();
-  job_ = value;
-  // @@protoc_insertion_point(field_set:pb.RoomPlayerReliveRes.job)
-}
-
-// required uint32 hp = 2;
-inline bool RoomPlayerReliveRes::has_hp() const {
-  return (_has_bits_[0] & 0x00000002u) != 0;
-}
-inline void RoomPlayerReliveRes::set_has_hp() {
-  _has_bits_[0] |= 0x00000002u;
-}
-inline void RoomPlayerReliveRes::clear_has_hp() {
-  _has_bits_[0] &= ~0x00000002u;
-}
-inline void RoomPlayerReliveRes::clear_hp() {
-  hp_ = 0u;
-  clear_has_hp();
-}
-inline ::google::protobuf::uint32 RoomPlayerReliveRes::hp() const {
-  // @@protoc_insertion_point(field_get:pb.RoomPlayerReliveRes.hp)
-  return hp_;
-}
-inline void RoomPlayerReliveRes::set_hp(::google::protobuf::uint32 value) {
-  set_has_hp();
-  hp_ = value;
-  // @@protoc_insertion_point(field_set:pb.RoomPlayerReliveRes.hp)
-}
-
-// required uint32 score = 3;
-inline bool RoomPlayerReliveRes::has_score() const {
-  return (_has_bits_[0] & 0x00000004u) != 0;
-}
-inline void RoomPlayerReliveRes::set_has_score() {
-  _has_bits_[0] |= 0x00000004u;
-}
-inline void RoomPlayerReliveRes::clear_has_score() {
-  _has_bits_[0] &= ~0x00000004u;
-}
-inline void RoomPlayerReliveRes::clear_score() {
-  score_ = 0u;
-  clear_has_score();
-}
-inline ::google::protobuf::uint32 RoomPlayerReliveRes::score() const {
-  // @@protoc_insertion_point(field_get:pb.RoomPlayerReliveRes.score)
-  return score_;
-}
-inline void RoomPlayerReliveRes::set_score(::google::protobuf::uint32 value) {
-  set_has_score();
-  score_ = value;
-  // @@protoc_insertion_point(field_set:pb.RoomPlayerReliveRes.score)
-}
-
-// -------------------------------------------------------------------
-
 // RoomPlayerStopReq
 
 // required .pb.Vector pos = 1;
@@ -8787,55 +8740,6 @@ inline void SpellLevelUpReq::set_xml_id(::google::protobuf::uint32 value) {
   set_has_xml_id();
   xml_id_ = value;
   // @@protoc_insertion_point(field_set:pb.SpellLevelUpReq.xml_id)
-}
-
-// -------------------------------------------------------------------
-
-// SpellLevelUpRes
-
-// required .pb.RoomPlayerSpell spell = 1;
-inline bool SpellLevelUpRes::has_spell() const {
-  return (_has_bits_[0] & 0x00000001u) != 0;
-}
-inline void SpellLevelUpRes::set_has_spell() {
-  _has_bits_[0] |= 0x00000001u;
-}
-inline void SpellLevelUpRes::clear_has_spell() {
-  _has_bits_[0] &= ~0x00000001u;
-}
-inline void SpellLevelUpRes::clear_spell() {
-  if (spell_ != NULL) spell_->::pb::RoomPlayerSpell::Clear();
-  clear_has_spell();
-}
-inline const ::pb::RoomPlayerSpell& SpellLevelUpRes::spell() const {
-  // @@protoc_insertion_point(field_get:pb.SpellLevelUpRes.spell)
-  return spell_ != NULL ? *spell_
-                         : *::pb::RoomPlayerSpell::internal_default_instance();
-}
-inline ::pb::RoomPlayerSpell* SpellLevelUpRes::mutable_spell() {
-  set_has_spell();
-  if (spell_ == NULL) {
-    spell_ = new ::pb::RoomPlayerSpell;
-  }
-  // @@protoc_insertion_point(field_mutable:pb.SpellLevelUpRes.spell)
-  return spell_;
-}
-inline ::pb::RoomPlayerSpell* SpellLevelUpRes::release_spell() {
-  // @@protoc_insertion_point(field_release:pb.SpellLevelUpRes.spell)
-  clear_has_spell();
-  ::pb::RoomPlayerSpell* temp = spell_;
-  spell_ = NULL;
-  return temp;
-}
-inline void SpellLevelUpRes::set_allocated_spell(::pb::RoomPlayerSpell* spell) {
-  delete spell_;
-  spell_ = spell;
-  if (spell) {
-    set_has_spell();
-  } else {
-    clear_has_spell();
-  }
-  // @@protoc_insertion_point(field_set_allocated:pb.SpellLevelUpRes.spell)
 }
 
 // -------------------------------------------------------------------
@@ -9120,6 +9024,169 @@ inline void FrameMove::set_allocated_dir(::pb::Vector* dir) {
     clear_has_dir();
   }
   // @@protoc_insertion_point(field_set_allocated:pb.FrameMove.dir)
+}
+
+// -------------------------------------------------------------------
+
+// FrameMoveTest
+
+// required uint32 id = 1;
+inline bool FrameMoveTest::has_id() const {
+  return (_has_bits_[0] & 0x00000008u) != 0;
+}
+inline void FrameMoveTest::set_has_id() {
+  _has_bits_[0] |= 0x00000008u;
+}
+inline void FrameMoveTest::clear_has_id() {
+  _has_bits_[0] &= ~0x00000008u;
+}
+inline void FrameMoveTest::clear_id() {
+  id_ = 0u;
+  clear_has_id();
+}
+inline ::google::protobuf::uint32 FrameMoveTest::id() const {
+  // @@protoc_insertion_point(field_get:pb.FrameMoveTest.id)
+  return id_;
+}
+inline void FrameMoveTest::set_id(::google::protobuf::uint32 value) {
+  set_has_id();
+  id_ = value;
+  // @@protoc_insertion_point(field_set:pb.FrameMoveTest.id)
+}
+
+// required .pb.Vector pos = 2;
+inline bool FrameMoveTest::has_pos() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void FrameMoveTest::set_has_pos() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void FrameMoveTest::clear_has_pos() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void FrameMoveTest::clear_pos() {
+  if (pos_ != NULL) pos_->::pb::Vector::Clear();
+  clear_has_pos();
+}
+inline const ::pb::Vector& FrameMoveTest::pos() const {
+  // @@protoc_insertion_point(field_get:pb.FrameMoveTest.pos)
+  return pos_ != NULL ? *pos_
+                         : *::pb::Vector::internal_default_instance();
+}
+inline ::pb::Vector* FrameMoveTest::mutable_pos() {
+  set_has_pos();
+  if (pos_ == NULL) {
+    pos_ = new ::pb::Vector;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.FrameMoveTest.pos)
+  return pos_;
+}
+inline ::pb::Vector* FrameMoveTest::release_pos() {
+  // @@protoc_insertion_point(field_release:pb.FrameMoveTest.pos)
+  clear_has_pos();
+  ::pb::Vector* temp = pos_;
+  pos_ = NULL;
+  return temp;
+}
+inline void FrameMoveTest::set_allocated_pos(::pb::Vector* pos) {
+  delete pos_;
+  pos_ = pos;
+  if (pos) {
+    set_has_pos();
+  } else {
+    clear_has_pos();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.FrameMoveTest.pos)
+}
+
+// required .pb.Vector dir = 3;
+inline bool FrameMoveTest::has_dir() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void FrameMoveTest::set_has_dir() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void FrameMoveTest::clear_has_dir() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void FrameMoveTest::clear_dir() {
+  if (dir_ != NULL) dir_->::pb::Vector::Clear();
+  clear_has_dir();
+}
+inline const ::pb::Vector& FrameMoveTest::dir() const {
+  // @@protoc_insertion_point(field_get:pb.FrameMoveTest.dir)
+  return dir_ != NULL ? *dir_
+                         : *::pb::Vector::internal_default_instance();
+}
+inline ::pb::Vector* FrameMoveTest::mutable_dir() {
+  set_has_dir();
+  if (dir_ == NULL) {
+    dir_ = new ::pb::Vector;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.FrameMoveTest.dir)
+  return dir_;
+}
+inline ::pb::Vector* FrameMoveTest::release_dir() {
+  // @@protoc_insertion_point(field_release:pb.FrameMoveTest.dir)
+  clear_has_dir();
+  ::pb::Vector* temp = dir_;
+  dir_ = NULL;
+  return temp;
+}
+inline void FrameMoveTest::set_allocated_dir(::pb::Vector* dir) {
+  delete dir_;
+  dir_ = dir;
+  if (dir) {
+    set_has_dir();
+  } else {
+    clear_has_dir();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.FrameMoveTest.dir)
+}
+
+// required .pb.Vector pre_pos = 4;
+inline bool FrameMoveTest::has_pre_pos() const {
+  return (_has_bits_[0] & 0x00000004u) != 0;
+}
+inline void FrameMoveTest::set_has_pre_pos() {
+  _has_bits_[0] |= 0x00000004u;
+}
+inline void FrameMoveTest::clear_has_pre_pos() {
+  _has_bits_[0] &= ~0x00000004u;
+}
+inline void FrameMoveTest::clear_pre_pos() {
+  if (pre_pos_ != NULL) pre_pos_->::pb::Vector::Clear();
+  clear_has_pre_pos();
+}
+inline const ::pb::Vector& FrameMoveTest::pre_pos() const {
+  // @@protoc_insertion_point(field_get:pb.FrameMoveTest.pre_pos)
+  return pre_pos_ != NULL ? *pre_pos_
+                         : *::pb::Vector::internal_default_instance();
+}
+inline ::pb::Vector* FrameMoveTest::mutable_pre_pos() {
+  set_has_pre_pos();
+  if (pre_pos_ == NULL) {
+    pre_pos_ = new ::pb::Vector;
+  }
+  // @@protoc_insertion_point(field_mutable:pb.FrameMoveTest.pre_pos)
+  return pre_pos_;
+}
+inline ::pb::Vector* FrameMoveTest::release_pre_pos() {
+  // @@protoc_insertion_point(field_release:pb.FrameMoveTest.pre_pos)
+  clear_has_pre_pos();
+  ::pb::Vector* temp = pre_pos_;
+  pre_pos_ = NULL;
+  return temp;
+}
+inline void FrameMoveTest::set_allocated_pre_pos(::pb::Vector* pre_pos) {
+  delete pre_pos_;
+  pre_pos_ = pre_pos;
+  if (pre_pos) {
+    set_has_pre_pos();
+  } else {
+    clear_has_pre_pos();
+  }
+  // @@protoc_insertion_point(field_set_allocated:pb.FrameMoveTest.pre_pos)
 }
 
 // -------------------------------------------------------------------
@@ -9806,6 +9873,64 @@ inline void FrameSpellState::set_allocated_cur_gen_id(::std::string* cur_gen_id)
 
 // -------------------------------------------------------------------
 
+// FrameSpellLevel
+
+// required uint32 player_id = 1;
+inline bool FrameSpellLevel::has_player_id() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void FrameSpellLevel::set_has_player_id() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void FrameSpellLevel::clear_has_player_id() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void FrameSpellLevel::clear_player_id() {
+  player_id_ = 0u;
+  clear_has_player_id();
+}
+inline ::google::protobuf::uint32 FrameSpellLevel::player_id() const {
+  // @@protoc_insertion_point(field_get:pb.FrameSpellLevel.player_id)
+  return player_id_;
+}
+inline void FrameSpellLevel::set_player_id(::google::protobuf::uint32 value) {
+  set_has_player_id();
+  player_id_ = value;
+  // @@protoc_insertion_point(field_set:pb.FrameSpellLevel.player_id)
+}
+
+// repeated .pb.RoomPlayerSpell spells = 2;
+inline int FrameSpellLevel::spells_size() const {
+  return spells_.size();
+}
+inline void FrameSpellLevel::clear_spells() {
+  spells_.Clear();
+}
+inline const ::pb::RoomPlayerSpell& FrameSpellLevel::spells(int index) const {
+  // @@protoc_insertion_point(field_get:pb.FrameSpellLevel.spells)
+  return spells_.Get(index);
+}
+inline ::pb::RoomPlayerSpell* FrameSpellLevel::mutable_spells(int index) {
+  // @@protoc_insertion_point(field_mutable:pb.FrameSpellLevel.spells)
+  return spells_.Mutable(index);
+}
+inline ::pb::RoomPlayerSpell* FrameSpellLevel::add_spells() {
+  // @@protoc_insertion_point(field_add:pb.FrameSpellLevel.spells)
+  return spells_.Add();
+}
+inline ::google::protobuf::RepeatedPtrField< ::pb::RoomPlayerSpell >*
+FrameSpellLevel::mutable_spells() {
+  // @@protoc_insertion_point(field_mutable_list:pb.FrameSpellLevel.spells)
+  return &spells_;
+}
+inline const ::google::protobuf::RepeatedPtrField< ::pb::RoomPlayerSpell >&
+FrameSpellLevel::spells() const {
+  // @@protoc_insertion_point(field_list:pb.FrameSpellLevel.spells)
+  return spells_;
+}
+
+// -------------------------------------------------------------------
+
 // FrameSceneItemCreate
 
 // required .pb.RoomItem item = 1;
@@ -9959,67 +10084,67 @@ inline void FrameLevelUp::set_player_spell_point(::google::protobuf::uint32 valu
 
 // -------------------------------------------------------------------
 
-// FramePlayerState
+// FramePlayerBaseState
 
 // required uint32 player_id = 1;
-inline bool FramePlayerState::has_player_id() const {
+inline bool FramePlayerBaseState::has_player_id() const {
   return (_has_bits_[0] & 0x00000002u) != 0;
 }
-inline void FramePlayerState::set_has_player_id() {
+inline void FramePlayerBaseState::set_has_player_id() {
   _has_bits_[0] |= 0x00000002u;
 }
-inline void FramePlayerState::clear_has_player_id() {
+inline void FramePlayerBaseState::clear_has_player_id() {
   _has_bits_[0] &= ~0x00000002u;
 }
-inline void FramePlayerState::clear_player_id() {
+inline void FramePlayerBaseState::clear_player_id() {
   player_id_ = 0u;
   clear_has_player_id();
 }
-inline ::google::protobuf::uint32 FramePlayerState::player_id() const {
-  // @@protoc_insertion_point(field_get:pb.FramePlayerState.player_id)
+inline ::google::protobuf::uint32 FramePlayerBaseState::player_id() const {
+  // @@protoc_insertion_point(field_get:pb.FramePlayerBaseState.player_id)
   return player_id_;
 }
-inline void FramePlayerState::set_player_id(::google::protobuf::uint32 value) {
+inline void FramePlayerBaseState::set_player_id(::google::protobuf::uint32 value) {
   set_has_player_id();
   player_id_ = value;
-  // @@protoc_insertion_point(field_set:pb.FramePlayerState.player_id)
+  // @@protoc_insertion_point(field_set:pb.FramePlayerBaseState.player_id)
 }
 
 // required .pb.RoomPlayerState state = 2;
-inline bool FramePlayerState::has_state() const {
+inline bool FramePlayerBaseState::has_state() const {
   return (_has_bits_[0] & 0x00000001u) != 0;
 }
-inline void FramePlayerState::set_has_state() {
+inline void FramePlayerBaseState::set_has_state() {
   _has_bits_[0] |= 0x00000001u;
 }
-inline void FramePlayerState::clear_has_state() {
+inline void FramePlayerBaseState::clear_has_state() {
   _has_bits_[0] &= ~0x00000001u;
 }
-inline void FramePlayerState::clear_state() {
+inline void FramePlayerBaseState::clear_state() {
   if (state_ != NULL) state_->::pb::RoomPlayerState::Clear();
   clear_has_state();
 }
-inline const ::pb::RoomPlayerState& FramePlayerState::state() const {
-  // @@protoc_insertion_point(field_get:pb.FramePlayerState.state)
+inline const ::pb::RoomPlayerState& FramePlayerBaseState::state() const {
+  // @@protoc_insertion_point(field_get:pb.FramePlayerBaseState.state)
   return state_ != NULL ? *state_
                          : *::pb::RoomPlayerState::internal_default_instance();
 }
-inline ::pb::RoomPlayerState* FramePlayerState::mutable_state() {
+inline ::pb::RoomPlayerState* FramePlayerBaseState::mutable_state() {
   set_has_state();
   if (state_ == NULL) {
     state_ = new ::pb::RoomPlayerState;
   }
-  // @@protoc_insertion_point(field_mutable:pb.FramePlayerState.state)
+  // @@protoc_insertion_point(field_mutable:pb.FramePlayerBaseState.state)
   return state_;
 }
-inline ::pb::RoomPlayerState* FramePlayerState::release_state() {
-  // @@protoc_insertion_point(field_release:pb.FramePlayerState.state)
+inline ::pb::RoomPlayerState* FramePlayerBaseState::release_state() {
+  // @@protoc_insertion_point(field_release:pb.FramePlayerBaseState.state)
   clear_has_state();
   ::pb::RoomPlayerState* temp = state_;
   state_ = NULL;
   return temp;
 }
-inline void FramePlayerState::set_allocated_state(::pb::RoomPlayerState* state) {
+inline void FramePlayerBaseState::set_allocated_state(::pb::RoomPlayerState* state) {
   delete state_;
   state_ = state;
   if (state) {
@@ -10027,7 +10152,7 @@ inline void FramePlayerState::set_allocated_state(::pb::RoomPlayerState* state) 
   } else {
     clear_has_state();
   }
-  // @@protoc_insertion_point(field_set_allocated:pb.FramePlayerState.state)
+  // @@protoc_insertion_point(field_set_allocated:pb.FramePlayerBaseState.state)
 }
 
 #endif  // !PROTOBUF_INLINE_NOT_IN_HEADERS

@@ -8,16 +8,62 @@
 #include <unistd.h>
 #include "AI_client.h"
 #include "game.pb.h"
+#include "actions.pb.h"
+#include "pbjson.hpp"
+
 
 using namespace ai;
 using namespace pb;
 using namespace std;
+using namespace google::protobuf;
+using namespace pbjson;
 
 int main(int argc, char **argv){
 	GOOGLE_PROTOBUF_VERIFY_VERSION;
+	
+	ActionList actionlist;
+	Action *actionitem = actionlist.add_actionitem();
+	actionitem->set_action("move");
+	
+	ActionVector *actionvec = new  ActionVector();
+	actionvec->set_x(2000);
+	actionvec->set_z(1000);
+	actionitem->set_allocated_pos(actionvec);
+	
+	
+	ActionVector *actiondir = new  ActionVector();
+	actiondir->set_x(11);
+	actiondir->set_z(11);
+	actionitem->set_allocated_dir(actiondir);
+	
+	actionitem->set_xml_id(11101);
+	actionitem->set_job(1);
+	
+	//stop
+	Action *actionitem1 = actionlist.add_actionitem();
+	actionitem1->set_action("stop");
+	ActionVector *actionpos = new  ActionVector();
+	actionpos->set_x(1);
+	actionpos->set_z(1);
+	actionitem1->set_allocated_pos(actionpos);
+	
+	ActionVector *actiondir1 = new  ActionVector();
+	actiondir1->set_x(22);
+	actiondir1->set_z(22);
+	actionitem1->set_allocated_dir(actiondir1);
+	
+	actionitem1->set_xml_id(11101);
+	actionitem1->set_job(1);
+	
+	std::string str0;
+	pbjson::pb2json(&actionlist, str0);
+	printf("PB2Json result fres:\n%s\n\n", str0.c_str());
+	//exit(0);
+	
+	
 	//192.168.89.42:9201
 	const char *ip = (argc >= 2)? argv[1] : "192.168.89.42";
-	int port = (argc >= 3)? atoi(argv[2]) : 9201;
+	int port = (argc >= 3)? atoi(argv[2]) : 19201;
 
 	Client *client = Client::connect(ip, port);
 	if(client == NULL){
@@ -52,6 +98,10 @@ int main(int argc, char **argv){
 		if(0 == res_len || !fres.ParseFromArray(res, res_len)){
 			fprintf(stderr, "[method: %s] parse game result failed.\n", "get");
 		}else{
+			std::string str;
+			pbjson::pb2json(&fres, str);
+			printf("PB2Json result fres:\n%s\n\n", str.c_str());
+			
 			int32_t error_code = fres.id();
 			//const char *error_info = fres.game_issue().c_str();
 			//const char *return_data = fres.game_issue().c_str();
@@ -123,12 +173,14 @@ int main(int argc, char **argv){
 	
 	uint32_t move_req_len = movereq_.GetCachedSize();
 
-	char moveres[8096];
-	uint32_t move_res_len = sizeof(moveres);
+	//char moveres[8096];
+	//uint32_t move_res_len = sizeof(moveres);
 	
-	int moveret = client->reqmove(movereq, move_req_len, moveres, move_res_len);
+	int moveret = client->reqmove(movereq, move_req_len);
 
 	if(0 == moveret){
+		fprintf(stderr, "[method: %s] parse game result succ.\n", "move");
+		/*
 		RoomPlayerDragRes mres;
 		if(0 == move_res_len || !mres.ParseFromArray(moveres, move_res_len)){
 			fprintf(stderr, "[method: %s] parse game result failed.\n", "move");
@@ -136,11 +188,134 @@ int main(int argc, char **argv){
 			Vector res_pos = mres.pos();
 			fprintf(stderr, "[method: %s] parse game x:%d,z:%d.\n", "move",res_pos.x(),res_pos.z());
 		}
+		*/
 	}else{
 		fprintf(stderr, "[method: %s] parse game result failed.\n", "movereq");
 	}
 	
-	//wait
+	//stop
+	RoomPlayerStopReq stopreq_;
+	Vector *posvec1 = new  Vector();
+	posvec1->set_x(2000);
+	posvec1->set_z(1000);
+	stopreq_.set_allocated_pos(posvec1);
+	
+	Vector *dirvec1 = new  Vector();
+	dirvec1->set_x(10);
+	dirvec1->set_z(10);
+	stopreq_.set_allocated_dir(dirvec1);
+	
+	char stopreq[8192];
+	if(!stopreq_.SerializeToArray(stopreq, sizeof(stopreq))){
+		fprintf(stderr, "game serialize req failed.\n");
+		return 0;
+	}
+	
+	uint32_t stop_req_len = stopreq_.GetCachedSize();
+
+	//char stopres[8096];
+	//uint32_t stop_res_len = sizeof(stopres);
+	
+	int stopret = client->reqstop(stopreq, stop_req_len);
+
+	if(0 == stopret){
+		fprintf(stderr, "[method: %s] parse game result succ.\n", "stop");
+		/*
+		RoomPlayerDragRes mres;
+		if(0 == stop_res_len || !mres.ParseFromArray(stopres, stop_res_len)){
+			fprintf(stderr, "[method: %s] parse game result failed.\n", "stop");
+		}else{
+			Vector res_pos = mres.pos();
+			fprintf(stderr, "[method: %s] parse game x:%d,z:%d.\n", "stop",res_pos.x(),res_pos.z());
+		}
+		*/
+	}else{
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "stopreq");
+	}
+	
+	//relive
+	RoomPlayerReliveReq relivereq_;
+	relivereq_.set_job(1);
+	
+	
+	char relivereq[8192];
+	if(!relivereq_.SerializeToArray(relivereq, sizeof(relivereq))){
+		fprintf(stderr, "game serialize req failed.\n");
+		return 0;
+	}
+	
+	uint32_t relive_req_len = relivereq_.GetCachedSize();
+
+	//char reliveres[8096];
+	//uint32_t relive_res_len = sizeof(reliveres);
+	
+	int reliveret = client->reqrelive(relivereq, relive_req_len);
+
+	if(0 == reliveret){
+		fprintf(stderr, "[method: %s] parse game result succ.\n", "relive");
+		//not need
+		/*
+		RoomPlayerReliveRes lres;
+		if(0 == relive_res_len || !lres.ParseFromArray(reliveres, relive_res_len)){
+			fprintf(stderr, "[method: %s] parse game result failed.\n", "relive");
+		}else{
+			fprintf(stderr, "[method: %s] parse game job:%d,score:%d,hp:%d.\n", "relive",lres.job(),lres.score(),lres.hp());
+		}
+		*/
+	}else{
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "relivereq");
+	}
+	
+	//spell
+	SpellStartReq spellreq_;
+	spellreq_.set_xml_id(11101);
+	Vector *posvec2 = new  Vector();
+	posvec2->set_x(2000);
+	posvec2->set_z(1000);
+	spellreq_.set_allocated_pos(posvec2);
+	
+	Vector *dirvec2 = new  Vector();
+	dirvec2->set_x(10);
+	dirvec2->set_z(10);
+	spellreq_.set_allocated_dir(dirvec2);
+	
+	char spellreq[8192];
+	if(!spellreq_.SerializeToArray(spellreq, sizeof(spellreq))){
+		fprintf(stderr, "game serialize req failed.\n");
+		return 0;
+	}
+	uint32_t spell_req_len = spellreq_.GetCachedSize();
+	
+	int retspell = client->reqreleasespell(spellreq, spell_req_len);
+
+	if(0 == retspell){
+		//not need
+		fprintf(stderr, "[method: %s] parse game result succ.\n", "spell");
+	}else{
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "spell");
+	}
+	
+	//spellup
+	SpellLevelUpReq spellupreq_;
+	spellupreq_.set_xml_id(11101);
+	
+	char spellupreq[8192];
+	if(!spellupreq_.SerializeToArray(spellupreq, sizeof(spellupreq))){
+		fprintf(stderr, "game serialize req failed.\n");
+		return 0;
+	}
+	uint32_t spellup_req_len = spellupreq_.GetCachedSize();
+	
+	int retspellup = client->reqspellup(spellupreq, spellup_req_len);
+
+	if(0 == retspellup){
+		//not need
+		fprintf(stderr, "[method: %s] parse game result succ.\n", "spellup");
+	}else{
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "spellup");
+	}
+	
+	//wait notice
 	//int32_t time = 30;
 	fprintf(stderr, "parse game notice start.[notice cmd : %d]\n", 0);
 	do{
@@ -152,10 +327,10 @@ int main(int argc, char **argv){
 		if(0 == notice_ret){
 			fprintf(stderr, "[method: p2] parse game notice succ.[notice cmd : %u]\n", notice_cmd);
 		}
-		
+		client->reqmove(movereq, move_req_len);
 		usleep(3000 * 1000);
 		//time--;
-	}while(1);
+	}while(0);
 	
 	//game end===============================
 	

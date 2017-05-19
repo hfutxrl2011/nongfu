@@ -10,6 +10,10 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "game.pb.h"
+#include "actions.pb.h"
+using namespace pb;
+using namespace google::protobuf;
 
 namespace ai{
 class Client{
@@ -18,16 +22,24 @@ public:
 	static Client* connect(const std::string &ip, int port);
 	Client(){};
 	virtual ~Client(){};
+	virtual int getLinkFd() = 0;
 
 	virtual void *request(uint32_t cmd, const void *req, uint32_t len, void *res, uint32_t &res_len) = 0;
 	virtual int roomlogin(const void *req, uint32_t req_len, void *res, uint32_t &res_len) = 0;
-	virtual int reqmove(const void *req, uint32_t req_len, void *res, uint32_t &res_len) = 0;
+	virtual int reqmove(const void *req, uint32_t req_len) = 0;
+	virtual int reqstop(const void *req, uint32_t req_len) = 0;
+	virtual int reqrelive(const void *req, uint32_t req_len) = 0;
+	virtual int reqreleasespell(const void *req, uint32_t req_len) = 0;
+	virtual int reqspellup(const void *req, uint32_t req_len) = 0;
 	virtual int readNotify(uint32_t &cmd, void *res, uint32_t &res_len) = 0;
 	virtual int readFrameNotify(void *res, uint32_t &res_len) = 0;
 	virtual int readFrameData(uint32_t cmd, const ::std::string &res) = 0;
 	virtual int readFrameDataMove(const ::std::string &res) = 0;//移动数据
 	
 	virtual int readLADDERNotify(void *res, uint32_t &res_len) = 0;
+
+	virtual int setGameState(RoomLoginRes *currentState) = 0;
+	virtual RoomLoginRes* getGameState() = 0;
 	
 private:
 	Client(const Client&);

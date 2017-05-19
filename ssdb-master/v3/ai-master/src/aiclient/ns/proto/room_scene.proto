@@ -17,8 +17,10 @@ enum FRAME {
     CMD_SPELL_SATE = 8; // 技能状态
     CMD_SCENE_ITEM_CREATE = 9; // 场景道具创建
     CMD_SCENE_TIEM_REMOVE = 10; // 场景道具移除
-    CMD_PLAYER_LEVEL_UP = 11; // 玩家升级
-    CMD_BUFF_STATE = 12; // BUFF状态
+    CMD_LEVEL_UP = 11; // 玩家升级
+    CMD_BASE_STATE = 12; // BUFF状态
+    CMD_SPELL_LEVEL_UP = 13; // 技能升级
+    CMD_MOVE_TEST = 14; // 移动测试
 }
 
 // 移动指令
@@ -26,6 +28,14 @@ message FrameMove {
     required uint32 id = 1; // 玩家ID
     required Vector pos = 2; // 位置
     required Vector dir = 3; // 方向
+}
+
+// 测试移动指令
+message FrameMoveTest{
+    required uint32 id = 1; // 玩家id
+    required Vector pos = 2; // 位置
+    required Vector dir = 3; // 方向
+    required Vector pre_pos = 4; // 预测位置
 }
 
 // 停止指令
@@ -76,6 +86,12 @@ message FrameSpellState {
     required string cur_gen_id = 4; // 目前生成到的id
 }
 
+// 技能等级
+message FrameSpellLevel {
+    required uint32 player_id = 1;
+    repeated RoomPlayerSpell spells = 2; // 技能 [<0:普攻> <1,2,3:1,2,3技能>]
+}
+
 // 场景道具创建
 message FrameSceneItemCreate {
    required RoomItem item = 1; // 场景道具
@@ -93,8 +109,8 @@ message FrameLevelUp {
     required uint32 player_spell_point = 3; // 玩家当前拥有的技能点
 }
 
-// buff状态推送
-message FramePlayerState {
+// 玩家状态推送
+message FramePlayerBaseState {
     required uint32 player_id = 1; // 玩家id
     required RoomPlayerState state = 2;  // 状态
 }

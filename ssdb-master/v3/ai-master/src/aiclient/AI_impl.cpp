@@ -37,6 +37,10 @@ Client* Client::connect(const std::string &ip, int port){
 	return client;
 }
 
+int ClientImpl::getLinkFd(){
+	return link->fd();
+}
+
 void* ClientImpl::request(uint32_t cmd, const void *req, uint32_t len, void *res, uint32_t &res_len){
 	fprintf(stderr, "\n request write start [ cmd: %d, req_len: %u ].\n", cmd, len);
 	doWriteRequest(cmd,req,len);
@@ -150,45 +154,34 @@ int ClientImpl::roomlogin(const void *req, uint32_t req_len, void *res, uint32_t
 	return 0;
 }
 
-int ClientImpl::reqmove(const void *req, uint32_t req_len, void *res, uint32_t &res_len)
+int ClientImpl::reqmove(const void *req, uint32_t req_len)
 {
-	uint32_t cmd = ROOM_MOVE;
-	if(NULL == request(cmd, req, req_len, res, res_len)){
-		return -1;
-	}
-	//doWriteRequest(cmd, req, req_len);
+	uint32_t cmd = ROOM_PLAYER_MOVE;
+	doWriteRequest(cmd, req, req_len);
 	return -1;
 }
-int ClientImpl::reqstop(const void *req, uint32_t req_len, void *res, uint32_t &res_len)
+int ClientImpl::reqstop(const void *req, uint32_t req_len)
 {
-	uint32_t cmd = ROOM_STOP;
-	if(NULL == request(cmd, req, req_len, res, res_len)){
-		return -1;
-	}	
+	uint32_t cmd = ROOM_PLAYER_STOP;
+	doWriteRequest(cmd, req, req_len);	
 	return 0;
 }
-int ClientImpl::reqrelive(const void *req, uint32_t req_len, void *res, uint32_t &res_len)
+int ClientImpl::reqrelive(const void *req, uint32_t req_len)
 {
-	uint32_t cmd = ROOM_RELIVE_PLAYER;//room login
-	if(NULL == request(cmd, req, req_len, res, res_len)){
-		return -1;
-	}	
+	uint32_t cmd = ROOM_PLAYER_RELIVE;
+	doWriteRequest(cmd, req, req_len);	
 	return 0;
 }
-int ClientImpl::reqreleasespell(const void *req, uint32_t req_len, void *res, uint32_t &res_len)
+int ClientImpl::reqreleasespell(const void *req, uint32_t req_len)
 {
-	uint32_t cmd = ROOM_SPELL;//room login
-	if(NULL == request(cmd, req, req_len, res, res_len)){
-		return -1;
-	}	
+	uint32_t cmd = ROOM_PLAYER_SPELL;
+	doWriteRequest(cmd, req, req_len);
 	return 0;
 }
-int ClientImpl::reqspellup(const void *req, uint32_t req_len, void *res, uint32_t &res_len)
+int ClientImpl::reqspellup(const void *req, uint32_t req_len)
 {
 	uint32_t cmd = ROOM_SPELL_LEVEL_UP;//room login
-	if(NULL == request(cmd, req, req_len, res, res_len)){
-		return -1;
-	}	
+	doWriteRequest(cmd, req, req_len);
 	return 0;
 }
 
@@ -213,6 +206,7 @@ int ClientImpl::readNotify(uint32_t &cmd, void *res, uint32_t &res_len)
 			readLADDERNotify(res,res_len);
 			break;
 		}
+		/*
 		case ROOM_KILLS_NOTIFY:
 		{
 			
@@ -233,7 +227,7 @@ int ClientImpl::readNotify(uint32_t &cmd, void *res, uint32_t &res_len)
 			
 			//break;
 		}
-		
+		*/
 		default:
 			fprintf(stderr, "read notice failed [ cmd: %d ].\n", cmd);
 			break;
@@ -248,13 +242,38 @@ int ClientImpl::readLADDERNotify(void *res, uint32_t &res_len)
 	if(0 == res_len || !fres.ParseFromArray(res, res_len)){
 		fprintf(stderr, "[method: %s] parse game result failed.\n", "readLADDERNotify");
 	}else{
-		fprintf(stderr, "[method: %s] item size: %d", "p1", fres.items_size());
+		std::string str,state,new_state;
+		//pbjson::pb2json(&fres, str);
+		//pbjson::pb2json(gameState, state);
+		fprintf(stderr, "[return str: %s] item size: %d\n", str.c_str(), fres.items_size());
 		for (int i = 0; i < fres.items_size(); i++) {
 			const RoomLadderNotify::Item& item = fres.items(i);
-			fprintf(stderr, "[method: %s] i:%d.\n","p2",i);
+			
+			// 获取message的descriptor
+			//const Descriptor* descriptor = gameState->GetDescriptor();
+			// 获取message的反射接口，可用于获取和修改字段的值
+			//const Reflection* reflection = gameState->GetReflection();
+			// 根据字段名查找message的字段descriptor
+			//const FieldDescriptor* idField = descriptor->FindFieldByName("id");
+			
+			//if (NULL != idField) {
+				//reflection->SetInt32(gameState, idField, 100);
+			//}
+			
+			//for( int j = 0 ; j < gameState->snap_shot().players_size() ; j++){
+				//RoomPlayer* player = gameState->snap_shot()->players(j);
+				// 将id设置为100
+				//if (NULL != idField) {
+				//	reflection->SetInt32(gameState, idField, 100);
+				//}
+				//if(player->id() == item.id()){
+					//player->set_score(item.score());
+				//}
+			//}
 			fprintf(stderr, "[method: %s] parse game result succ [ id: %d,score:%d,kill_times:%d,dead_times:%d ].\n", "p3", item.id(),item.score(),item.kill_times(),item.dead_times());
 		}
-		
+		//pbjson::pb2json(gameState, new_state);
+		//fprintf(stderr, "[method: readLADDERNotify] parse game state:%s,new state:%s",state.c_str(),new_state.c_str());
 	}
 	return 0;
 }
@@ -292,7 +311,7 @@ int ClientImpl::readFrameData(uint32_t cmd, const ::std::string &res)
 			break;
 		}
 		default:
-			fprintf(stderr, "read notice failed [ cmd: %d ].\n", cmd);
+			fprintf(stderr, "read readFrameData failed [ cmd: %d ].\n", cmd);
 			break;
 	}
 	
@@ -315,6 +334,15 @@ int ClientImpl::readFrameDataMove(const ::std::string &res)
 	return 0;
 }
 
+int ClientImpl::setGameState(RoomLoginRes *currentState)
+{
+		gameState = currentState;
+		return 1;
+}
+
+RoomLoginRes* ClientImpl::getGameState(){
+	return gameState;
+}
 
 
 }; // namespace ai
