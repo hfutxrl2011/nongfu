@@ -127,7 +127,6 @@ message RoomPlayer {
     required Vector dir = 7; // 方向
     required uint32 score = 8; // 积分
     repeated RoomPlayerSpell spells = 9; // 技能 [<0:普攻> <1,2,3:1,2,3技能>]
-
 }
 
 // 玩家状态
@@ -164,9 +163,10 @@ message RoomBuff {
 
 // 玩家快照
 message RoomSnapShot {
-    repeated RoomPlayer players = 1;
-    repeated RoomItem   items = 2;
-    repeated RoomBuff   buffs = 3;
+    required uint32 cur_frame = 1;
+    repeated RoomPlayer players = 2;
+    repeated RoomItem   items = 3;
+    repeated RoomBuff   buffs = 4;
 }
 
 // 登录
@@ -302,6 +302,8 @@ message FrameMove {
     required uint32 id = 1; // 玩家ID
     required Vector pos = 2; // 位置
     required Vector dir = 3; // 方向
+    required Vector cur_pos = 4; // 当前位置
+    required Vector cur_dir = 5; // 当前方向
 }
 
 // 测试移动指令

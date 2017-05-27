@@ -3,6 +3,7 @@
 
 #include "AI_client.h"
 #include "net/link.h"
+#include "util/log.h"
 #include "pbjson.hpp"
 #include "game.pb.h"
 #include "actions.pb.h"
@@ -15,10 +16,10 @@ private:
 	
 	Link *link;
 	std::vector<std::string> resp_;
-	
+	RoomLoginRes *gameState1;
 public:
-	RoomLoginRes *gameState;
-	//std::string gstate;
+	
+	//std::string currentState;
 	ClientImpl();
 	~ClientImpl();
 	
@@ -36,12 +37,31 @@ public:
 	int readNotify(uint32_t &cmd, void *res, uint32_t &res_len);
 	int readFrameNotify(void *res, uint32_t &res_len);
 	int readFrameData(uint32_t cmd, const ::std::string &res);
+	int readPlayerAddNotify(void *res, uint32_t &res_len);
+	int readPlayerRemoveNotify(void *res, uint32_t &res_len);
+	
 	int readFrameDataMove(const ::std::string &res);
+	int readSceneItemCreate(const ::std::string &res);
+	int readSceneItemRemove(const ::std::string &res);
+	int readBuffStart(const ::std::string &res);
+	int readBuffRemove(const ::std::string &res);
+	int readSceneBaseState(const ::std::string &res);
+	int readLevelUp(const ::std::string &res);
+	int readDeath(const ::std::string &res);
+	int readFrameSpellLevel(const ::std::string &res);
 	
 	int readLADDERNotify(void *res, uint32_t &res_len);
+	int readDRAGNotify(void *res, uint32_t &res_len);
 	
 	int setGameState(RoomLoginRes *currentState);
 	RoomLoginRes* getGameState();
+	void RemoveFromRepeatedField(
+    const google::protobuf::Reflection *reflection,
+    const google::protobuf::FieldDescriptor *field,
+    google::protobuf::Message *message,
+    int row,
+    int count);
+	
 	
 };
 

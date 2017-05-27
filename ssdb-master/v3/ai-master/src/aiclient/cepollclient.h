@@ -12,7 +12,10 @@
 #define _DEFINE_EPOLLCLIENT_H_
 #define _MAX_SOCKFD_COUNT 65535
 
-#include<iostream>
+
+
+#include <cstring>
+#include <iostream>
 #include <sys/epoll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -28,6 +31,7 @@
 #include <unistd.h>
 
 #include "AI_client.h"
+
 #include "game.pb.h"
 #include "actions.pb.h"
 #include "pbjson.hpp"
@@ -60,7 +64,7 @@ struct UserStatus
         char cSendbuff[1024];//发送的数据内容
         int iBuffLen;//发送数据内容的长度
         unsigned int uEpollEvents;//Epoll events
-		//RoomLoginRes *gameState;
+		std::string currentState;
 };
 
 class CEpollClient
@@ -76,7 +80,7 @@ class CEpollClient
                 int RecvFromServer(int iUserid,char *pRecvBuff,uint32_t &iBuffLen);
                 bool CloseUser(int iUserId);
                 bool DelEpoll(int iSockFd);
-				bool runModel(char* result,RoomLoginRes* gameState);
+				bool runModel(char* result,std::string state);
 				bool doAction(char* result);
         private:
                 int    m_iUserCount;//用户数量；

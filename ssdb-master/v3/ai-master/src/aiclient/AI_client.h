@@ -21,6 +21,7 @@ public:
 	static Client* connect(const char *ip, int port);
 	static Client* connect(const std::string &ip, int port);
 	Client(){};
+	std::string currentState;
 	virtual ~Client(){};
 	virtual int getLinkFd() = 0;
 
@@ -34,9 +35,20 @@ public:
 	virtual int readNotify(uint32_t &cmd, void *res, uint32_t &res_len) = 0;
 	virtual int readFrameNotify(void *res, uint32_t &res_len) = 0;
 	virtual int readFrameData(uint32_t cmd, const ::std::string &res) = 0;
+	virtual int readPlayerAddNotify(void *res, uint32_t &res_len) = 0;
+	virtual int readPlayerRemoveNotify(void *res, uint32_t &res_len) = 0;
 	virtual int readFrameDataMove(const ::std::string &res) = 0;//移动数据
+	virtual int readSceneItemCreate(const ::std::string &res) = 0;
+	virtual int readSceneItemRemove(const ::std::string &res) = 0;
+	virtual int readBuffStart(const ::std::string &res) = 0;
+	virtual int readBuffRemove(const ::std::string &res) = 0;
+	virtual int readSceneBaseState(const ::std::string &res) = 0;
+	virtual int readLevelUp(const ::std::string &res) = 0;
+	virtual int readDeath(const ::std::string &res) = 0;
+	virtual int readFrameSpellLevel(const ::std::string &res) = 0;
 	
 	virtual int readLADDERNotify(void *res, uint32_t &res_len) = 0;
+	virtual int readDRAGNotify(void *res, uint32_t &res_len) = 0;
 
 	virtual int setGameState(RoomLoginRes *currentState) = 0;
 	virtual RoomLoginRes* getGameState() = 0;
