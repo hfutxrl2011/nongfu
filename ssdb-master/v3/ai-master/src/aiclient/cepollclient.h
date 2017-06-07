@@ -1,19 +1,8 @@
-/*=================================================================
-*   Copyright (C) 2017 All rights reserved.
-*   
-*   @filename  ：cepollclient.h
-*   @author   ：xieronglin
-*   @date     ：2017-05-15
-*   @brief    ：
-*
-================================================================*/
-
 #ifndef _DEFINE_EPOLLCLIENT_H_
 #define _DEFINE_EPOLLCLIENT_H_
+
+
 #define _MAX_SOCKFD_COUNT 65535
-
-
-
 #include <cstring>
 #include <iostream>
 #include <sys/epoll.h>
@@ -35,6 +24,8 @@
 #include "game.pb.h"
 #include "actions.pb.h"
 #include "pbjson.hpp"
+#include "ThreadPool.h"
+#include "../util/log.h"
 
 
 using namespace std;
@@ -74,14 +65,15 @@ class CEpollClient
                 ~CEpollClient();
                 void RunFun();
 				Client* client;
+				ThreadPool* workerpool;
         private:
                 int ConnectToServer(int iUserId,const char *pServerIp,unsigned short uServerPort);
                 int SendToServerData(int iUserId);
                 int RecvFromServer(int iUserid,char *pRecvBuff,uint32_t &iBuffLen);
                 bool CloseUser(int iUserId);
                 bool DelEpoll(int iSockFd);
-				bool runModel(char* result,std::string state);
-				bool doAction(char* result);
+				//bool runModel(char* result,std::string state);
+				//bool doAction(char* result);
         private:
                 int    m_iUserCount;//用户数量；
                 struct UserStatus *m_pAllUserStatus;//用户状态数组
@@ -90,6 +82,8 @@ class CEpollClient
                 int    m_iPort;//端口号
                 char   m_ip[100];//IP地址
 				
+				
 };
+
 
 #endif

@@ -32,6 +32,8 @@ Client* Client::connect(const std::string &ip, int port){
 	}
 	ClientImpl *client = new ClientImpl();
 	client->link = Link::connect(ip.c_str(), port);
+	client->link->nodelay();
+	//client->link->noblock();
 	if(client->link == NULL){
 		delete client;
 		return NULL;
@@ -196,16 +198,17 @@ int ClientImpl::readNotify(uint32_t &cmd, void *res, uint32_t &res_len)
 	log_info("readNotify read notice do read [ cmd: %d ].\n", cmd);
 	switch(cmd)
 	{
-		case ROOM_FRAME_NOTIFY:
-		{	
-			fprintf(stderr, "[method: ROOM_FRAME_NOTIFY] =============================>>>>>>>>>>>\n");
-			readFrameNotify(res,res_len);
-			break;
-		}
 		case ROOM_LADDER_NOTIFY:
 		{
 			fprintf(stderr, "[method: ROOM_LADDER_NOTIFY] =============================>>>>>>>>>>>\n");
 			readLADDERNotify(res,res_len);
+			break;
+		}
+		
+		case ROOM_FRAME_NOTIFY:
+		{	
+			fprintf(stderr, "[method: ROOM_FRAME_NOTIFY] =============================>>>>>>>>>>>\n");
+			readFrameNotify(res,res_len);
 			break;
 		}
 		case ROOM_PLAYER_DRAG:
@@ -214,13 +217,7 @@ int ClientImpl::readNotify(uint32_t &cmd, void *res, uint32_t &res_len)
 			readDRAGNotify(res,res_len);
 			break;
 		}
-		/*
-		case ROOM_KILLS_NOTIFY:
-		{
-			
-			//break;
-		}
-		*/
+		
 		case ROOM_PLAYER_ADD:
 		{
 			fprintf(stderr, "[method: ROOM_PLAYER_ADD] =============================>>>>>>>>>>>\n");
@@ -233,7 +230,13 @@ int ClientImpl::readNotify(uint32_t &cmd, void *res, uint32_t &res_len)
 			readPlayerRemoveNotify(res,res_len);
 			break;
 		}
-		
+		/*
+		case ROOM_KILLS_NOTIFY:
+		{
+			
+			//break;
+		}
+		*/
 		default:
 			fprintf(stderr, "read notice failed [ cmd: %d ].\n", cmd);
 			break;
@@ -251,25 +254,24 @@ int ClientImpl::readLADDERNotify(void *res, uint32_t &res_len)
 		RoomLoginRes gameState;
 		std::string state = currentState;
 		std::string err;
-		int ret = pbjson::json2pb(state, &gameState, err);
-		fprintf(stderr, "[return old state: %s] item size: %d,ret:%d\n", currentState.c_str(), fres.items_size(),ret);
+		//int ret = 
+		pbjson::json2pb(state, &gameState, err);
+		//fprintf(stderr, "[return old state: %s] item size: %d,ret:%d\n", currentState.c_str(), fres.items_size(),ret);
 		for (int i = 0; i < fres.items_size(); i++) {
 			const RoomLadderNotify::Item& item = fres.items(i);
 			for( int j = 0 ; j < gameState.snap_shot().players_size() ; j++){
 				RoomPlayer* player = gameState.mutable_snap_shot()->mutable_players(j);
 				if(player->id() == item.id() && player->score() != item.score()){
 					player->set_score(item.score());
-					//player->set_score(1111);
 				}
 			}
-			fprintf(stderr, "[method: %s] parse game result succ [ id: %d,score:%d,kill_times:%d,dead_times:%d ].\n", "p3", item.id(),item.score(),item.kill_times(),item.dead_times());
+			//fprintf(stderr, "[method: %s] parse game result succ [ id: %d,score:%d,kill_times:%d,dead_times:%d ].\n", "p3", item.id(),item.score(),item.kill_times(),item.dead_times());
 		}
 		//update state
 		std::string new_state;
 		pbjson::pb2json(&gameState, new_state);
 		currentState = new_state;
-		//delete &gameState;
-		fprintf(stderr, "[method: readLADDERNotify] parse game state:%s\n,new state:%s",state.c_str(),new_state.c_str());
+		//fprintf(stderr, "[method: readLADDERNotify] parse game state:%s\n,new state:%s",state.c_str(),new_state.c_str());
 		
 		
 	}
@@ -300,6 +302,7 @@ int ClientImpl::readDRAGNotify(void *res, uint32_t &res_len)
 					
 					player->set_allocated_pos(posvec1);
 					player->set_allocated_dir(dirvec1);
+					log_info("[method: readDRAGNotify] read drag notice.x:%d,z:%d",fres.pos().x(),fres.pos().z());
 			}
 		}
 			
@@ -308,9 +311,7 @@ int ClientImpl::readDRAGNotify(void *res, uint32_t &res_len)
 		pbjson::pb2json(&gameState, new_state);
 		currentState = new_state;
 		
-		fprintf(stderr, "[method: readDRAGNotify] parse game state:%s\n,new state:%s",state.c_str(),new_state.c_str());
-	
-		
+		//fprintf(stderr, "[method: readDRAGNotify] parse game state:%s\n,new state:%s",state.c_str(),new_state.c_str());
 		//end drag req
 		uint32_t cmd = ROOM_PLAYER_DRAG_END;
 		RoomPlayerDragEndReq dragEnd_;
@@ -332,6 +333,7 @@ int ClientImpl::readFrameNotify(void *res, uint32_t &res_len)
 		fprintf(stderr, "[method: %s] parse game result failed.\n", "readFrameNotify");
 	}else{
 		uint32_t frameid = fres.frame();
+		log_info("MOVE LOC======,frame id:%d",frameid);
 		fprintf(stderr, "[method: %s] item size: %d,frame:%d.\n", "readFrameNotify", fres.list_size(),frameid);
 		for (int i = 0; i < fres.list_size(); i++) {
 			const Frame& frame = fres.list(i);
@@ -341,6 +343,7 @@ int ClientImpl::readFrameNotify(void *res, uint32_t &res_len)
 			readFrameData(cmd,data);
 			fprintf(stderr, "[method: %s] parse game result succ [ cmd: %d ].\n", "readFrameNotify", cmd);
 		}
+		
 		
 	}
 	return 0;
@@ -406,22 +409,23 @@ int ClientImpl::readFrameData(uint32_t cmd, const ::std::string &res)
 
 int ClientImpl::readFrameDataMove(const ::std::string &res)
 {
-	fprintf(stderr, "read readFrameDataMove.\n");
+	//fprintf(stderr, "read readFrameDataMove.\n");
 	FrameMove framemove;
 	if(!framemove.ParseFromString(res)){
 		fprintf(stderr, "[method: %s] parse game result failed.\n", "readFrameDataMove");
 	}else{
 		Vector res_pos = framemove.pos();
-		fprintf(stderr, "[method: %s] parse game x:%d,z:%d.\n", "readFrameDataMove",res_pos.x(),res_pos.z());
+		//fprintf(stderr, "[method: %s] parse game x:%d,z:%d.\n", "readFrameDataMove",res_pos.x(),res_pos.z());
 		Vector res_dir = framemove.dir();
-		fprintf(stderr, "[method: %s] parse game x:%d,z:%d.\n", "readFrameDataMove",res_dir.x(),res_dir.z());
-		fprintf(stderr, "[method: %s] parse game id:%d.\n", "readFrameDataMove",framemove.id());
+		//fprintf(stderr, "[method: %s] parse game x:%d,z:%d.\n", "readFrameDataMove",res_dir.x(),res_dir.z());
+		//fprintf(stderr, "[method: %s] parse game id:%d.\n", "readFrameDataMove",framemove.id());
 		
 		RoomLoginRes gameState;
 		std::string state = currentState;
 		std::string err;
-		int ret = pbjson::json2pb(state, &gameState, err);
-		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readFrameDataMove",ret,err.c_str());
+		//int ret = 
+		pbjson::json2pb(state, &gameState, err);
+		//fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readFrameDataMove",ret,err.c_str());
 		
 		for( int j = 0 ; j < gameState.snap_shot().players_size() ; j++){
 			RoomPlayer* player = gameState.mutable_snap_shot()->mutable_players(j);
@@ -436,6 +440,7 @@ int ClientImpl::readFrameDataMove(const ::std::string &res)
 				
 				player->set_allocated_pos(posvec);
 				player->set_allocated_dir(dirvec);
+				log_info("[method: readFrameDataMove] update location,x:%d,z:%d,playerid:%d",framemove.cur_pos().x(),framemove.cur_pos().z(),player->id());
 			}
 		}
 		
@@ -443,7 +448,7 @@ int ClientImpl::readFrameDataMove(const ::std::string &res)
 		std::string new_state;
 		pbjson::pb2json(&gameState, new_state);
 		currentState = new_state;
-		fprintf(stderr, "[method: readFrameDataMove] parse game state:%s\n,new state:%s\n",state.c_str(),new_state.c_str());
+		//fprintf(stderr, "[method: readFrameDataMove] parse game state:%s\n,new state:%s\n",state.c_str(),new_state.c_str());
 		
 	}
 	fprintf(stderr, "[method: readFrameDat done................\n");
@@ -470,7 +475,7 @@ int ClientImpl::readSceneItemCreate(const ::std::string &res){
 		posvec->set_x(item.item().pos().x());
 		posvec->set_z(item.item().pos().z());
 		roomitem->set_allocated_pos(posvec);
-		//delete posvec;
+		log_info("[method: readSceneItemCreate] add item id:%d,size:%d",item.item().id(),gameState.snap_shot().items_size());
 		
 		//update state
 		std::string new_state;
@@ -492,12 +497,14 @@ int ClientImpl::readSceneItemRemove(const ::std::string &res){
 		int ret = pbjson::json2pb(state, &gameState, err);
 		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readSceneItemRemove",ret,err.c_str());
 		
+		log_info("[method: readSceneItemRemove] remove item size:%d/n",gameState.snap_shot().items_size());
 		for( int j = 0 ; j < gameState.snap_shot().items_size() ; j++){
 			RoomItem* roomItem = gameState.mutable_snap_shot()->mutable_items(j);
 			if(roomItem->id() == item.id() ){
 				log_info("[method: readSceneItemRemove] remove id:%d/n",roomItem->id());
 				roomItem->Clear();
 				//DeleteElementsFromRepeatedField(*roomItem, gameState.mutable_snap_shot()->mutable_items);
+				
 				const google::protobuf::Descriptor  *descriptor = gameState.mutable_snap_shot()->GetDescriptor();
 				const google::protobuf::Reflection  *reflection = gameState.mutable_snap_shot()->GetReflection();
 				const google::protobuf::FieldDescriptor* field = descriptor->FindFieldByName("items");
@@ -505,7 +512,7 @@ int ClientImpl::readSceneItemRemove(const ::std::string &res){
 			}
 		}
 		
-		
+		log_info("[method: readSceneItemRemove] remove item size:%d/n",gameState.snap_shot().items_size());
 		//update state
 		std::string new_state;
 		pbjson::pb2json(&gameState, new_state);
@@ -569,7 +576,6 @@ int ClientImpl::readBuffRemove(const ::std::string &res){
 			if(roomItem->id() == buff.buff_id() ){
 				log_info("[method: readBuffRemove] remove id:%s/n",roomItem->id().c_str());
 				roomItem->Clear();
-				//DeleteElementsFromRepeatedField(*roomItem, gameState.mutable_snap_shot()->mutable_items);
 				const google::protobuf::Descriptor  *descriptor = gameState.mutable_snap_shot()->GetDescriptor();
 				const google::protobuf::Reflection  *reflection = gameState.mutable_snap_shot()->GetReflection();
 				const google::protobuf::FieldDescriptor* field = descriptor->FindFieldByName("buffs");
@@ -639,26 +645,27 @@ int ClientImpl::readPlayerAddNotify(void *res, uint32_t &res_len){
 	return 0;
 }
 int ClientImpl::readPlayerRemoveNotify(void *res, uint32_t &res_len){
-	fprintf(stderr, "read readBuffRemove.\n");
+	fprintf(stderr, "read readPlayerRemove.\n");
 	RoomPlayerRemove player;
 	if(0 == res_len || !player.ParseFromArray(res, res_len)){
-		fprintf(stderr, "[method: %s] parse game result failed.\n", "readBuffRemove");
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "readPlayerRemove");
 	}else{
 		RoomLoginRes gameState;
 		std::string state = currentState;
 		std::string err;
 		int ret = pbjson::json2pb(state, &gameState, err);
-		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readBuffRemove",ret,err.c_str());
+		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readPlayerRemove",ret,err.c_str());
 		
 		for( int j = 0 ; j < gameState.snap_shot().players_size() ; j++){
 			RoomPlayer* roomItem = gameState.mutable_snap_shot()->mutable_players(j);
 			if(roomItem->id() == player.id() ){
-				log_info("[method: readBuffRemove] remove id:%d/n",roomItem->id());
+				log_info("[method: readPlayerRemove] remove id:%d,player id:%d",roomItem->id(),player.id());
+				fprintf(stderr, "[method: %s] parse game player id:%d,player id:%d\n", "readPlayerRemove",roomItem->id(),player.id());
 				roomItem->Clear();
-				const google::protobuf::Descriptor  *descriptor = gameState.mutable_snap_shot()->GetDescriptor();
-				const google::protobuf::Reflection  *reflection = gameState.mutable_snap_shot()->GetReflection();
-				const google::protobuf::FieldDescriptor* field = descriptor->FindFieldByName("players");
-				RemoveFromRepeatedField(reflection,field,gameState.mutable_snap_shot(),j,gameState.snap_shot().players_size());
+				const google::protobuf::Descriptor  *descriptor_player = gameState.mutable_snap_shot()->GetDescriptor();
+				const google::protobuf::Reflection  *reflection_player = gameState.mutable_snap_shot()->GetReflection();
+				const google::protobuf::FieldDescriptor* field_player = descriptor_player->FindFieldByName("players");
+				RemoveFromRepeatedField(reflection_player,field_player,gameState.mutable_snap_shot(),j,gameState.snap_shot().players_size());
 			}
 		}
 		
@@ -667,7 +674,7 @@ int ClientImpl::readPlayerRemoveNotify(void *res, uint32_t &res_len){
 		std::string new_state;
 		pbjson::pb2json(&gameState, new_state);
 		currentState = new_state;
-		fprintf(stderr, "[method: readSceneItemRemove] parse game state:%s\n,new state:%s\n",state.c_str(),new_state.c_str());
+		fprintf(stderr, "[method: readPlayerRemove] parse game state:%s\n,new state:%s\n",state.c_str(),new_state.c_str());
 	}
 	return 0;
 }
@@ -810,13 +817,17 @@ void ClientImpl::RemoveFromRepeatedField(
     int row,
     int count)
 {
-    int size = reflection->FieldSize(*message, field);
+    //int size = reflection->FieldSize(*message, field);
+	reflection->SwapElements(message, field, row, count-1);
+	reflection->RemoveLast(message, field);
+	/*
     // shift all remaining elements
     for (int i = row; i < size - count; ++i)
         reflection->SwapElements(message, field, i, i + count);
     // delete elements from reflection
     for (int i = 0; i < count; ++i)
         reflection->RemoveLast(message, field);
+	*/
 }
 
 

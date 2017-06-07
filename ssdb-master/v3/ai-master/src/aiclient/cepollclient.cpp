@@ -2,6 +2,236 @@
 #include "cepollclient.h"
 #include "util/log.h"
 
+class Mytask : public Task{
+public:
+    Mytask(){}
+	Client* client;
+	
+    int run(){
+        log_info("thread[%lu] : %s\n",pthread_self(),(char*)this->arg_);
+        runModel((char*)this->arg_);
+        return 0;
+    }
+	
+	bool runModel(std::string state)
+	{
+		bool bret = false;
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		if(tv.tv_usec % 100 >= 90){
+			log_info("debug:==============> step2.1,return false,usec:%d",tv.tv_usec);
+			return bret;
+		}
+		log_info("debug:==============> step2.1,usec:%d",tv.tv_usec);
+		
+		if ( !Py_IsInitialized() ){Py_Initialize();}
+		if ( !Py_IsInitialized() ){return bret;}
+		
+		PyRun_SimpleString("import sys");
+		PyRun_SimpleString("sys.path.append('./')");
+		//PyRun_SimpleString("sys.path.append('./ai_pacman/igame/')");
+		PyObject *pName,*pModule,*pDict,*pFunc;
+		
+		//pName = PyString_FromString("modelsvrtest");
+		pName = PyString_FromString("action");
+		pModule = PyImport_Import(pName);
+		if ( !pModule ){
+			printf("can't find modelsvrtest.py");
+			return bret;
+		}
+		
+		pDict = PyModule_GetDict(pModule);
+		if ( !pDict ){
+			return bret;
+		}
+		log_info("debug:==============> step2.2");
+		//pFunc = PyDict_GetItemString(pDict, "run");
+		pFunc = PyDict_GetItemString(pDict, "Action");
+		if ( !pFunc || !PyCallable_Check(pFunc) )
+		{
+			printf("can't find function [run]");
+			getchar();
+			return bret;
+		}
+		
+		PyObject* pParm = PyTuple_New(1);
+		PyTuple_SetItem(pParm, 0, Py_BuildValue("s",state.c_str()));
+		log_info("debug:==============> step2.3");
+		PyObject* ret =PyObject_CallObject(pFunc, pParm);
+		log_info("debug:==============> step2.4");
+		log_info("do model,state0:%s",state.c_str());
+		char* result = NULL;
+		if (ret != NULL && PyString_Check(ret)){
+			result = PyString_AsString(ret);
+		}else{
+			log_info("debug:=================>PyString_Check failed...");
+			return bret;
+		}
+		log_info("debug:==============> step2.4.1,result:%s",result);
+		//char *res = NULL;
+		//strncpy(res, result, 512);
+		cout <<"===========================>"<<endl;
+		log_info("debug:==============> step2.5");
+		
+		bret = doAction(result);
+		
+		log_info("debug:==============> step2.6");
+		log_info("do model,state:%s\n actions:%s",state.c_str(),result);
+		
+		Py_DECREF(pFunc);
+		Py_DECREF(ret);
+		Py_DECREF(pParm);
+		Py_DECREF(pName);
+		Py_DECREF(pModule);
+		log_info("debug:==============> step2.7");
+		Py_Finalize();
+		log_info("debug:==============> step2.8");
+		return bret;
+		
+	}
+
+	bool doAction(char* result)
+	{
+		bool bret = false;
+		char action[8096];//todo
+		sprintf(action, "{\"actionitem\":%s}", result);
+		printf("action:%s\n", action);
+		
+		ActionList actionlist;
+		std::string err;
+		int ret = pbjson::json2pb(action, &actionlist, err);
+		if(0 == ret){
+			bret = true;
+		}
+		printf("actionlist size:\%d\n", actionlist.actionitem_size());
+		for (int i = 0; i < actionlist.actionitem_size(); i++) {
+			const Action& action = actionlist.actionitem(i);
+			if(action.action().compare("move") == 0){
+				printf("move...\n");
+				RoomPlayerMoveReq movereq_;
+				Vector *posvec = new  Vector();
+				posvec->set_x(action.pos().x());
+				posvec->set_z(action.pos().z());
+				movereq_.set_allocated_pos(posvec);
+				
+				Vector *dirvec = new  Vector();
+				dirvec->set_x(action.dir().x());
+				dirvec->set_z(action.dir().z());
+				movereq_.set_allocated_dir(dirvec);
+				
+				char movereq[8192];
+				if(!movereq_.SerializeToArray(movereq, sizeof(movereq))){
+					fprintf(stderr, "game serialize req failed.\n");
+				}
+				uint32_t move_req_len = movereq_.GetCachedSize();
+				client->reqmove(movereq, move_req_len);
+				fprintf(stderr, "game move succ.\n");
+				
+				struct timeval tv;
+				gettimeofday(&tv, NULL);
+				if(tv.tv_usec % 100 >= 90){
+					log_info("debug:==============> move update location by model,usec",tv.tv_usec);
+					RoomLoginRes gameState;
+					std::string state = client->currentState;
+					std::string err;
+					int ret = pbjson::json2pb(state, &gameState, err);
+					fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "do move action",ret,err.c_str());
+						for( int j = 0 ; j < gameState.snap_shot().players_size() ; j++){
+						RoomPlayer* player = gameState.mutable_snap_shot()->mutable_players(j);
+						if(player->id() == gameState.id()){
+							Vector *posvec1 = new  Vector();
+							posvec1->set_x(action.pos().x());
+							posvec1->set_z(action.pos().z());
+							
+							Vector *dirvec1 = new  Vector();
+							dirvec1->set_x(action.dir().x());
+							dirvec1->set_z(action.dir().z());
+							
+							player->set_allocated_pos(posvec1);
+							player->set_allocated_dir(dirvec1);
+						}
+					}
+					
+					//update state
+					std::string new_state;
+					pbjson::pb2json(&gameState, new_state);
+					client->currentState = new_state;
+				}
+				
+			}else if(action.action().compare("stop") == 0){// not allow
+				printf("stop...\n");
+				/*
+				RoomPlayerStopReq stopreq_;
+				Vector *posvec1 = new  Vector();
+				posvec1->set_x(action.pos().x());
+				posvec1->set_z(action.pos().z());
+				stopreq_.set_allocated_pos(posvec1);
+				
+				Vector *dirvec1 = new  Vector();
+				//dirvec1->set_x(action.dir().x());
+				//dirvec1->set_z(action.dir().z());
+				dirvec1->set_x(0);
+				dirvec1->set_z(0);
+				stopreq_.set_allocated_dir(dirvec1);
+				
+				char stopreq[8192];
+				if(!stopreq_.SerializeToArray(stopreq, sizeof(stopreq))){
+					fprintf(stderr, "game serialize req failed.\n");
+				}
+				uint32_t stop_req_len = stopreq_.GetCachedSize();
+				client->reqstop(stopreq, stop_req_len);
+				*/
+				fprintf(stderr, "game stop succ.\n");
+			}else if(action.action().compare("spell") == 0){
+				SpellStartReq spellreq_;
+				spellreq_.set_xml_id(action.xml_id());
+				Vector *posvec2 = new  Vector();
+				posvec2->set_x(action.dir().x());
+				posvec2->set_z(action.dir().z());
+				spellreq_.set_allocated_pos(posvec2);
+				
+				Vector *dirvec2 = new  Vector();
+				dirvec2->set_x(action.dir().x());
+				dirvec2->set_z(action.dir().z());
+				spellreq_.set_allocated_dir(dirvec2);
+				
+				char spellreq[8192];
+				if(!spellreq_.SerializeToArray(spellreq, sizeof(spellreq))){
+					fprintf(stderr, "game serialize req failed.\n");
+				}
+				uint32_t spell_req_len = spellreq_.GetCachedSize();
+				client->reqreleasespell(spellreq, spell_req_len);
+				printf("spell...\n");
+			}else if(action.action().compare("relive") == 0){
+				RoomPlayerReliveReq relivereq_;
+				relivereq_.set_job(action.job());
+				char relivereq[8192];
+				if(!relivereq_.SerializeToArray(relivereq, sizeof(relivereq))){
+					fprintf(stderr, "game serialize req failed.\n");
+				}
+				uint32_t relive_req_len = relivereq_.GetCachedSize();
+				client->reqrelive(relivereq, relive_req_len);
+				printf("relive...\n");
+			}else if(action.action().compare("spellup") == 0){
+				SpellLevelUpReq spellupreq_;
+				spellupreq_.set_xml_id(action.xml_id());
+				char spellupreq[8192];
+				if(!spellupreq_.SerializeToArray(spellupreq, sizeof(spellupreq))){
+					fprintf(stderr, "game serialize req failed.\n");
+				}
+				uint32_t spellup_req_len = spellupreq_.GetCachedSize();
+				client->reqspellup(spellupreq, spellup_req_len);
+				printf("spellup...\n");
+			}else{
+				printf("action error...\n");
+			}
+		}
+		return bret;
+	}
+};
+
+
+
 CEpollClient::CEpollClient(int iUserCount, const char* pIP, int iPort)
 {
 	strcpy(m_ip, pIP);
@@ -72,18 +302,14 @@ int CEpollClient::SendToServerData(int iUserId)
 			if(0 == res_len || !fres.ParseFromArray(res, res_len)){
 				fprintf(stderr, "[method: %s] parse game result failed.\n", "get");
 			}else{
-				//m_pAllUserStatus[iUserId].gameState = &fres;
 				std::string str;
 				pbjson::pb2json(&fres, str);
 				client->currentState = str;
-				//m_pAllUserStatus[iUserId].currentState = str;
-				//update game state
-				//client->setGameState(&fres);
 				
 				//printf("run model =====================>");
 				//char* result = NULL;
 				//runModel(result,client->currentState);
-				printf("PB2Json result fres:\n%s\n\n", client->currentState.c_str());
+				//printf("PB2Json result fres:\n%s\n\n", client->currentState.c_str());
 			}
 		}
         isendsize = res_len;
@@ -102,9 +328,15 @@ int CEpollClient::SendToServerData(int iUserId)
 
 int CEpollClient::RecvFromServer(int iUserId,char *pRecvBuff,uint32_t &iBuffLen)
 {
+	struct  timeval start;
+    struct  timeval end;
+    unsigned  long diff;
+    gettimeofday(&start,NULL);
+	
 	if(SEND_OK == m_pAllUserStatus[iUserId].iUserStatus){
 		//read notice
 		uint32_t notice_cmd = 0;
+		log_info("debug:==============> step0");
 		int notice_ret = client->readNotify(notice_cmd, pRecvBuff, iBuffLen);
 		if(0 == notice_ret){
 			fprintf(stderr, "[method: RecvFromServer] parse game notice succ.[notice cmd : %u]\n", notice_cmd);
@@ -120,13 +352,15 @@ int CEpollClient::RecvFromServer(int iUserId,char *pRecvBuff,uint32_t &iBuffLen)
 			//m_pAllUserStatus[iUserId].iUserStatus = RECV_OK;
 		}
 		log_info("debug:==============> step2");
-		char* result = NULL;
-		runModel(result,client->currentState);
+		//char* result = NULL;
+		//runModel(result,client->currentState);
 		log_info("debug:==============> step3");
-		printf("PB2Json result str:\n%s\n", client->currentState.c_str());
-		//sleep(1);
+		log_info("PB2Json result str:%s\n", client->currentState.c_str());
 	}
-    return iBuffLen;
+	gettimeofday(&end,NULL);
+	diff = 1000000 * (end.tv_sec-start.tv_sec)+ end.tv_usec-start.tv_usec;
+    log_info("read total cost TIME:%d ms", diff/1000);
+	return iBuffLen;
 }
 
 bool CEpollClient::CloseUser(int iUserId)
@@ -150,18 +384,18 @@ void CEpollClient::RunFun()
         m_iSockFd_UserId[isocketfd] = iuserid;//将用户ID和socketid关联起来
 
         event.data.fd = isocketfd;
-        event.events = EPOLLIN|EPOLLOUT|EPOLLERR|EPOLLHUP;
+        //event.events = EPOLLIN|EPOLLOUT|EPOLLERR|EPOLLHUP;
+		event.events = EPOLLIN|EPOLLOUT;
 
         m_pAllUserStatus[iuserid].uEpollEvents = event.events;
 		epoll_ctl(m_iEpollFd, EPOLL_CTL_ADD, event.data.fd, &event);
 	}
-	//int count = 0;
-	//int _quit = 0;
+	
+	//pool
+	workerpool = new ThreadPool(10);
+    workerpool->start();
+	
 	while(1){
-		//count++;
-		//if(count > 100){
-			//_quit = 1;
-		//}
 		struct epoll_event events[_MAX_SOCKFD_COUNT];
 		char buffer[8096];
 		memset(buffer,0,8096);
@@ -171,7 +405,7 @@ void CEpollClient::RunFun()
 		{
 			struct epoll_event event_nfds;
 			int iclientsockfd = events[ifd].data.fd;
-			cout << "events[ifd].data.fd: " << events[ifd].data.fd << endl;
+			//cout << "events[ifd].data.fd: " << events[ifd].data.fd << endl;
 			int iuserid = m_iSockFd_UserId[iclientsockfd];//根据socketfd得到用户ID
 			if( events[ifd].events & EPOLLOUT )
 			{
@@ -180,7 +414,8 @@ void CEpollClient::RunFun()
 				//int 
 				iret = 1;
 				if( 0 < iret ){
-					event_nfds.events = EPOLLIN|EPOLLERR|EPOLLHUP;
+					//event_nfds.events = EPOLLIN|EPOLLERR|EPOLLHUP;
+					event_nfds.events = EPOLLIN;
 					event_nfds.data.fd = iclientsockfd;
 					epoll_ctl(m_iEpollFd, EPOLL_CTL_MOD, event_nfds.data.fd, &event_nfds);
 				}else{
@@ -192,7 +427,16 @@ void CEpollClient::RunFun()
 			{
 				uint32_t len = 8096;
 				int ilen = RecvFromServer(iuserid, buffer, len);
-				cout<<ilen<<endl;
+				
+				//add task
+				char arg[8096];
+				sprintf(arg, "%s", client->currentState.c_str());
+				Mytask *taskobj=new Mytask();
+				taskobj->setArg((void*)arg);
+				taskobj->client = client;
+				workerpool->addTask(taskobj);
+				log_info("there are still %d tasks need to process\n",workerpool->size());
+				
 				if(0 > ilen){
 					cout <<"[CEpollClient error]: RunFun, recv fail, reason is:"<<strerror(errno)<<",errno is:"<<errno<<endl;
 					DelEpoll(events[ifd].data.fd);
@@ -204,7 +448,8 @@ void CEpollClient::RunFun()
 				}else{
 					m_iSockFd_UserId[iclientsockfd] = iuserid;//将socketfd和用户ID关联起来
 					event_nfds.data.fd = iclientsockfd;
-					event_nfds.events = EPOLLOUT|EPOLLERR|EPOLLHUP;
+					//event_nfds.events = EPOLLOUT|EPOLLERR|EPOLLHUP;
+					event_nfds.events = EPOLLIN;
 					epoll_ctl(m_iEpollFd, EPOLL_CTL_MOD, event_nfds.data.fd, &event_nfds);
 				}
 				//google::protobuf::ShutdownProtobufLibrary(); 
@@ -217,7 +462,9 @@ void CEpollClient::RunFun()
 		if(nfds <= 0){
 			//to do default
 		}
-		usleep(20 * 1000);// to avoid py run too busy
+		
+		//usleep(20*1000);// to avoid py run too busy
+		//google::protobuf::ShutdownProtobufLibrary();
 	}
 }
 
@@ -242,11 +489,18 @@ bool CEpollClient::DelEpoll(int iSockFd)
 	}
 	return bret;
 }
-
+/*
 bool CEpollClient::runModel(char* modreturn,std::string state)
 {
 	bool bret = false;
-	log_info("debug:==============> step2.1");
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	if(tv.tv_usec % 100 >= 100){
+		log_info("debug:==============> step2.1,return false,usec:%d",tv.tv_usec);
+		return bret;
+	}
+	log_info("debug:==============> step2.1,usec:%d",tv.tv_usec);
+	
 	if ( !Py_IsInitialized() ){Py_Initialize();}
 	if ( !Py_IsInitialized() ){return bret;}
 	
@@ -282,9 +536,9 @@ bool CEpollClient::runModel(char* modreturn,std::string state)
 	log_info("debug:==============> step2.3");
 	PyObject* ret =PyObject_CallObject(pFunc, pParm);
 	log_info("debug:==============> step2.4");
-	
+	log_info("do model,state0:%s",state.c_str());
 	char* result = NULL;
-	if (PyString_Check(ret)){
+	if (ret != NULL && PyString_Check(ret)){
 		result = PyString_AsString(ret);
 	}else{
 		log_info("debug:=================>PyString_Check failed...");
@@ -297,26 +551,27 @@ bool CEpollClient::runModel(char* modreturn,std::string state)
 	log_info("debug:==============> step2.5");
 	
 	bret = doAction(result);
+	
 	log_info("debug:==============> step2.6");
 	log_info("do model,state:%s\n actions:%s",state.c_str(),result);
 	
-    printf("result:%s\n", result);
-	//delete result;
     Py_DECREF(pFunc);
 	Py_DECREF(ret);
 	Py_DECREF(pParm);
 	Py_DECREF(pName);
 	Py_DECREF(pModule);
+	log_info("debug:==============> step2.7");
     Py_Finalize();
-
+	log_info("debug:==============> step2.8");
 	return bret;
 	
 }
-
+*/
+/*
 bool CEpollClient::doAction(char* result)
 {
 	bool bret = false;
-	char action[100];//todo
+	char action[8096];//todo
 	sprintf(action, "{\"actionitem\":%s}", result);
 	printf("action:%s\n", action);
 	
@@ -377,8 +632,10 @@ bool CEpollClient::doAction(char* result)
 			client->currentState = new_state;
 			
 			
-		}else if(action.action().compare("stop") == 0){
+		}else if(action.action().compare("stop") == 0){// not allow
 			printf("stop...\n");
+			*/
+			/*
 			RoomPlayerStopReq stopreq_;
 			Vector *posvec1 = new  Vector();
 			posvec1->set_x(action.pos().x());
@@ -386,8 +643,10 @@ bool CEpollClient::doAction(char* result)
 			stopreq_.set_allocated_pos(posvec1);
 			
 			Vector *dirvec1 = new  Vector();
-			dirvec1->set_x(action.dir().x());
-			dirvec1->set_z(action.dir().z());
+			//dirvec1->set_x(action.dir().x());
+			//dirvec1->set_z(action.dir().z());
+			dirvec1->set_x(0);
+			dirvec1->set_z(0);
 			stopreq_.set_allocated_dir(dirvec1);
 			
 			char stopreq[8192];
@@ -396,6 +655,8 @@ bool CEpollClient::doAction(char* result)
 			}
 			uint32_t stop_req_len = stopreq_.GetCachedSize();
 			client->reqstop(stopreq, stop_req_len);
+			*/
+			/*
 			fprintf(stderr, "game stop succ.\n");
 		}else if(action.action().compare("spell") == 0){
 			SpellStartReq spellreq_;
@@ -442,3 +703,4 @@ bool CEpollClient::doAction(char* result)
 	}
 	return bret;
 }
+*/
