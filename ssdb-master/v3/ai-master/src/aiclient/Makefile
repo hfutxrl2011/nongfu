@@ -10,7 +10,7 @@ mylib: AI_client.h AI_impl.h AI_impl.cpp game.pb.cc ThreadPool.h cepollclient.h 
 	${CXX} -I../util ${CFLAGS} -c ../util/log.cpp
 	${CXX} -I../ ${CFLAGS} -c game.pb.cc
 	${CXX} -I../ ${CFLAGS} -c actions.pb.cc
-	${CXX} -I./ ${CFLAGS} -c ThreadPool.cpp
+	${CXX} -I./ ${CFLAGS} -I/usr/include/python2.6 -lpython2.6 -c ThreadPool.cpp
 	${CXX} -I./lib/pbjson/src/ ${CFLAGS} -c ./lib/pbjson/src/pbjson.cpp
 	${CXX} -I../ -I./lib/pbjson/src ${CFLAGS} -c AI_impl.cpp
 	${CXX} -I../ -I./lib/pbjson/src ${CFLAGS} -I/usr/include/python2.6 -lpython2.6 -c cepollclient.cpp

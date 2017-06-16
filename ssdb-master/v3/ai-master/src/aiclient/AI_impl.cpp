@@ -32,7 +32,7 @@ Client* Client::connect(const std::string &ip, int port){
 	}
 	ClientImpl *client = new ClientImpl();
 	client->link = Link::connect(ip.c_str(), port);
-	client->link->nodelay();
+	//client->link->nodelay();
 	//client->link->noblock();
 	if(client->link == NULL){
 		delete client;
@@ -184,7 +184,7 @@ int ClientImpl::reqreleasespell(const void *req, uint32_t req_len)
 }
 int ClientImpl::reqspellup(const void *req, uint32_t req_len)
 {
-	uint32_t cmd = ROOM_SPELL_LEVEL_UP;//room login
+	uint32_t cmd = ROOM_SPELL_LEVEL_UP;
 	doWriteRequest(cmd, req, req_len);
 	return 0;
 }
@@ -217,7 +217,6 @@ int ClientImpl::readNotify(uint32_t &cmd, void *res, uint32_t &res_len)
 			readDRAGNotify(res,res_len);
 			break;
 		}
-		
 		case ROOM_PLAYER_ADD:
 		{
 			fprintf(stderr, "[method: ROOM_PLAYER_ADD] =============================>>>>>>>>>>>\n");
@@ -399,6 +398,16 @@ int ClientImpl::readFrameData(uint32_t cmd, const ::std::string &res)
 			readBuffRemove(res);
 			break;
 		}
+		case CMD_ACTION_START:
+		{	
+			readActionStart(res);
+			break;
+		}
+		case CMD_SPELL_LEVEL_UP:
+		{
+			readSpellLevelUp(res);
+			break;
+		}
 		default:
 			fprintf(stderr, "read readFrameData failed [ cmd: %d ].\n", cmd);
 			break;
@@ -535,6 +544,11 @@ int ClientImpl::readBuffStart(const ::std::string &res){
 		int ret = pbjson::json2pb(state, &gameState, err);
 		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readBuffStart",ret,err.c_str());
 		
+		if(buff.buff().remain_time() == 0){
+			log_info("debug:readBuffStart receive buff ignore, remain time:%d,buff id:%s,xml id:%d",buff.buff().remain_time(),buff.buff().id().c_str(),buff.buff().xml_id());
+			return -1;
+		}
+		
 		RoomBuff* roomitem = gameState.mutable_snap_shot()->add_buffs();
 		roomitem->set_id(buff.buff().id());
 		roomitem->set_xml_id(buff.buff().xml_id());
@@ -550,7 +564,14 @@ int ClientImpl::readBuffStart(const ::std::string &res){
 		dirvec->set_x(buff.buff().dir().x());
 		dirvec->set_z(buff.buff().dir().z());
 		roomitem->set_allocated_dir(dirvec);
-
+		
+		log_info("debug:readBuffStart receive buff, remain time:%d,buff id:%s,xml id:%d",buff.buff().remain_time(),buff.buff().id().c_str(),buff.buff().xml_id());
+		
+		
+		if(gameState.mutable_snap_shot()->buffs_size() > 50){
+			log_info("[method: %s] buff size is over 50.", "readBuffStart");
+			//return -1;//todo
+		}
 		//update state
 		std::string new_state;
 		pbjson::pb2json(&gameState, new_state);
@@ -568,13 +589,15 @@ int ClientImpl::readBuffRemove(const ::std::string &res){
 		RoomLoginRes gameState;
 		std::string state = currentState;
 		std::string err;
-		int ret = pbjson::json2pb(state, &gameState, err);
-		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readBuffRemove",ret,err.c_str());
+		//int ret = //
+		pbjson::json2pb(state, &gameState, err);
+		
+		log_info("[method: readBuffRemove] recieve remove id:%s",buff.buff_id().c_str());
 		
 		for( int j = 0 ; j < gameState.snap_shot().buffs_size() ; j++){
 			RoomBuff* roomItem = gameState.mutable_snap_shot()->mutable_buffs(j);
 			if(roomItem->id() == buff.buff_id() ){
-				log_info("[method: readBuffRemove] remove id:%s/n",roomItem->id().c_str());
+				log_info("[method: readBuffRemove] remove id:%s",roomItem->id().c_str());
 				roomItem->Clear();
 				const google::protobuf::Descriptor  *descriptor = gameState.mutable_snap_shot()->GetDescriptor();
 				const google::protobuf::Reflection  *reflection = gameState.mutable_snap_shot()->GetReflection();
@@ -729,6 +752,29 @@ int ClientImpl::readLevelUp(const ::std::string &res){
 			RoomPlayer* player = gameState.mutable_snap_shot()->mutable_players(j);
 			if( player->id() == levelUp.player_id()){
 				player->set_level(levelUp.player_level());
+				// do spell level up
+				if(levelUp.player_spell_point() > 0 && levelUp.player_id() == gameState.id() ){
+					SpellLevelUpReq spellupreq_;
+					int xml_id = 0;
+					for(int i = 0 ; i < player->spells_size() ; i++){
+						if(player->spells(i).level() <= 5){
+							xml_id = player->spells(i).xml_id();
+						}else{
+							continue;
+						}
+						log_info("[method: readLevelUp] player spell up succ,xml id:%d",player->spells(i).xml_id());
+					}
+					if(xml_id > 0){
+						spellupreq_.set_xml_id(xml_id);
+						char spellupreq[8192];
+						if(!spellupreq_.SerializeToArray(spellupreq, sizeof(spellupreq))){
+							fprintf(stderr, "game serialize req failed.\n");
+						}
+						uint32_t spellup_req_len = spellupreq_.GetCachedSize();
+						reqspellup(spellupreq, spellup_req_len);
+						log_info("[method: readLevelUp] do reqspellup succ...");
+					}
+				}
 				log_info("[method: readLevelUp] set player id:%d.",player->id());
 			}
 		}
@@ -809,6 +855,79 @@ int ClientImpl::readFrameSpellLevel(const ::std::string &res){
 	return 0;
 }
 
+int ClientImpl::readActionStart(const ::std::string &res){
+	fprintf(stderr, "read readActionStart.\n");
+	FrameActionStart spell;
+	if(!spell.ParseFromString(res)){
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "readActionStart");
+	}else{
+		RoomLoginRes gameState;
+		std::string state = currentState;
+		std::string err;
+		int ret = pbjson::json2pb(state, &gameState, err);
+		fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readActionStart",ret,err.c_str());
+		log_info("[method: readActionStart] debug:update spell succ,playerid:%d,xml id:%d,left cd:%d",spell.player_id(),spell.spell_id(),spell.left_cd());
+		for( int j = 0 ; j < gameState.snap_shot().players_size() ; j++){
+			RoomPlayer* player = gameState.mutable_snap_shot()->mutable_players(j);
+			if( player->id() == spell.player_id()){
+				for(int i = 0 ; i < player->spells_size() ; i++){
+					if(player->mutable_spells(i)->xml_id() == spell.spell_id() ){
+						if(player->mutable_spells(i)->cd() == spell.left_cd()){
+							player->mutable_spells(i)->set_cd(spell.left_cd()+1);
+						}else{
+							player->mutable_spells(i)->set_cd(spell.left_cd());
+						}
+						
+						log_info("[method: readActionStart] update spell succ,playerid:%d,xml id:%d,left cd:%d",player->id(),spell.spell_id(),spell.left_cd());
+					}
+				}
+			}
+		}
+		//update state
+		std::string new_state;
+		pbjson::pb2json(&gameState, new_state);
+		currentState = new_state;
+		fprintf(stderr, "[method: readActionStart] parse game state:%s\n,new state:%s\n",state.c_str(),new_state.c_str());
+	}
+	return 0;
+}
+
+
+int ClientImpl::readSpellLevelUp(const ::std::string &res){
+	fprintf(stderr, "read readSpellLevelUp.\n");
+	FrameSpellLevel spell;
+	if(!spell.ParseFromString(res)){
+		fprintf(stderr, "[method: %s] parse game result failed.\n", "readSpellLevelUp");
+	}else{
+		RoomLoginRes gameState;
+		std::string state = currentState;
+		std::string err;
+		//int ret =
+		pbjson::json2pb(state, &gameState, err);
+		//fprintf(stderr, "[method: %s] parse game ret:%d,error:%s.\n", "readSpellLevelUp",ret,err.c_str());
+		log_info("[method: readSpellLevelUp] debug:update spell level,playerid:%d",spell.player_id());
+		for( int j = 0 ; j < gameState.snap_shot().players_size() ; j++){
+			RoomPlayer* player = gameState.mutable_snap_shot()->mutable_players(j);
+			if( player->id() == spell.player_id() ){//&& gameState.id() == spell.player_id()){
+				for(int i = 0 ; i < player->spells_size() ; i++){
+					for(int k = 0 ; k < spell.spells_size() ; k++){
+						if(player->mutable_spells(i)->xml_id() == spell.spells(k).xml_id() ){
+							player->mutable_spells(i)->set_cd(spell.spells(k).cd());
+							player->mutable_spells(i)->set_level(spell.spells(k).level());
+							log_info("[method: readSpellLevelUp] update spell succ,playerid:%d,xml id:%d,left cd:%d,level:%d",player->id(),spell.spells(k).xml_id(),spell.spells(k).cd(),spell.spells(k).level());
+						}
+					}
+				}
+			}
+		}
+		//update state
+		std::string new_state;
+		pbjson::pb2json(&gameState, new_state);
+		currentState = new_state;
+		fprintf(stderr, "[method: readSpellLevelUp] parse game state:%s\n,new state:%s\n",state.c_str(),new_state.c_str());
+	}
+	return 0;
+}
 
 void ClientImpl::RemoveFromRepeatedField(
     const google::protobuf::Reflection *reflection,

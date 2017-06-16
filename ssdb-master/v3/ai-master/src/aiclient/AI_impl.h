@@ -49,6 +49,8 @@ public:
 	int readLevelUp(const ::std::string &res);
 	int readDeath(const ::std::string &res);
 	int readFrameSpellLevel(const ::std::string &res);
+	int readActionStart(const ::std::string &res); 
+	int readSpellLevelUp(const ::std::string &res); 
 	
 	int readLADDERNotify(void *res, uint32_t &res_len);
 	int readDRAGNotify(void *res, uint32_t &res_len);

@@ -46,12 +46,14 @@ public:
 	virtual int readLevelUp(const ::std::string &res) = 0;
 	virtual int readDeath(const ::std::string &res) = 0;
 	virtual int readFrameSpellLevel(const ::std::string &res) = 0;
+	virtual int readActionStart(const ::std::string &res) = 0;
+	virtual int readSpellLevelUp(const ::std::string &res) = 0;
 	
 	virtual int readLADDERNotify(void *res, uint32_t &res_len) = 0;
 	virtual int readDRAGNotify(void *res, uint32_t &res_len) = 0;
 
 	virtual int setGameState(RoomLoginRes *currentState) = 0;
-	virtual RoomLoginRes* getGameState() = 0;
+	virtual RoomLoginRes* getGameState() =0;
 	
 private:
 	Client(const Client&);

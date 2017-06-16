@@ -2,14 +2,37 @@
 #include "cepollclient.h"
 #include "util/log.h"
 
+class PyThreadStateLock
+{
+public:
+    PyThreadStateLock(void)
+    {
+        state = PyGILState_Ensure( );
+    }
+
+    ~PyThreadStateLock(void)
+    {
+         PyGILState_Release( state );
+    }
+private:
+    PyGILState_STATE state;
+};
+
 class Mytask : public Task{
 public:
     Mytask(){}
 	Client* client;
 	
     int run(){
-        log_info("thread[%lu] : %s\n",pthread_self(),(char*)this->arg_);
-        runModel((char*)this->arg_);
+        log_info("thread[%u] : %s\n",pthread_self(),(char*)this->arg_);
+        try{ 
+			runModel((char*)this->arg_);
+		}catch(exception& e){
+			log_info("python error:%s",e.what());
+			PyErr_Print();  
+			PyErr_Clear();
+		}
+		
         return 0;
     }
 	
@@ -18,18 +41,40 @@ public:
 		bool bret = false;
 		struct timeval tv;
 		gettimeofday(&tv, NULL);
-		if(tv.tv_usec % 100 >= 90){
+		if(tv.tv_usec % 100 >= 100){
 			log_info("debug:==============> step2.1,return false,usec:%d",tv.tv_usec);
 			return bret;
 		}
 		log_info("debug:==============> step2.1,usec:%d",tv.tv_usec);
 		
 		if ( !Py_IsInitialized() ){Py_Initialize();}
-		if ( !Py_IsInitialized() ){return bret;}
+		//  initialize thread support 
+		PyEval_InitThreads();
+		/*
+		 PyThreadState  *  mainThreadState  =  NULL;
+		 //  save a pointer to the main PyThreadState object 
+		 mainThreadState  =  PyThreadState_Get();
+		 //  release the lock 
+		 PyEval_ReleaseLock();
+		 
+		 
+		  //  get the global lock 
+		 PyEval_AcquireLock();
+		 //  get a reference to the PyInterpreterState 
+		 PyInterpreterState  *  mainInterpreterState  =  mainThreadState -> interp;
+		 //  create a thread state object for this thread 
+		 PyThreadState  *  myThreadState  =  PyThreadState_New(mainInterpreterState);
+		 //  free the lock 
+		 PyEval_ReleaseLock();
+		
+		 //  grab the global interpreter lock 
+		 PyEval_AcquireLock();
+		 //  swap in my thread state 
+		 PyThreadState_Swap(myThreadState);
+		*/
 		
 		PyRun_SimpleString("import sys");
 		PyRun_SimpleString("sys.path.append('./')");
-		//PyRun_SimpleString("sys.path.append('./ai_pacman/igame/')");
 		PyObject *pName,*pModule,*pDict,*pFunc;
 		
 		//pName = PyString_FromString("modelsvrtest");
@@ -53,13 +98,14 @@ public:
 			getchar();
 			return bret;
 		}
-		
+		log_info("do model,state00:%s",state.c_str());
+		state = client->currentState;//update
+		log_info("do model,state01:%s",state.c_str());
 		PyObject* pParm = PyTuple_New(1);
 		PyTuple_SetItem(pParm, 0, Py_BuildValue("s",state.c_str()));
 		log_info("debug:==============> step2.3");
 		PyObject* ret =PyObject_CallObject(pFunc, pParm);
 		log_info("debug:==============> step2.4");
-		log_info("do model,state0:%s",state.c_str());
 		char* result = NULL;
 		if (ret != NULL && PyString_Check(ret)){
 			result = PyString_AsString(ret);
@@ -67,25 +113,44 @@ public:
 			log_info("debug:=================>PyString_Check failed...");
 			return bret;
 		}
-		log_info("debug:==============> step2.4.1,result:%s",result);
-		//char *res = NULL;
-		//strncpy(res, result, 512);
-		cout <<"===========================>"<<endl;
-		log_info("debug:==============> step2.5");
+		log_info("debug:==============> step2.4");
 		
 		bret = doAction(result);
 		
-		log_info("debug:==============> step2.6");
-		log_info("do model,state:%s\n actions:%s",state.c_str(),result);
+		log_info("debug:==============> step2.5");
+		log_info("do model,state:%s actions:%s",state.c_str(),result);
 		
 		Py_DECREF(pFunc);
 		Py_DECREF(ret);
 		Py_DECREF(pParm);
 		Py_DECREF(pName);
 		Py_DECREF(pModule);
-		log_info("debug:==============> step2.7");
+		log_info("debug:==============> step2.6");
+		//PyGILState_Release(gstate);
+		//Py_Finalize();
+		/*
+		//  clear the thread state 
+		 PyThreadState_Swap(NULL);
+		 //  release our hold on the global interpreter 
+		 PyEval_ReleaseLock();
+		 */
+		 /*
+		  //  grab the lock 
+		 PyEval_AcquireLock();
+		 //  swap my thread state out of the interpreter 
+		 PyThreadState_Swap(NULL);
+		 //  clear out any cruft from thread state object 
+		 PyThreadState_Clear(myThreadState);
+		 //  delete my thread state object 
+		 PyThreadState_Delete(myThreadState);
+		 //  release the lock 
+		 PyEval_ReleaseLock();
+		 */
+		 // shut down the interpreter
+		//PyEval_AcquireLock();
 		Py_Finalize();
-		log_info("debug:==============> step2.8");
+		
+		log_info("debug:==============> step2.7");
 		return bret;
 		
 	}
@@ -129,7 +194,7 @@ public:
 				
 				struct timeval tv;
 				gettimeofday(&tv, NULL);
-				if(tv.tv_usec % 100 >= 90){
+				if(tv.tv_usec % 100 >= 100){
 					log_info("debug:==============> move update location by model,usec",tv.tv_usec);
 					RoomLoginRes gameState;
 					std::string state = client->currentState;
@@ -336,14 +401,14 @@ int CEpollClient::RecvFromServer(int iUserId,char *pRecvBuff,uint32_t &iBuffLen)
 	if(SEND_OK == m_pAllUserStatus[iUserId].iUserStatus){
 		//read notice
 		uint32_t notice_cmd = 0;
-		log_info("debug:==============> step0");
+		//log_info("debug:==============> step0");
 		int notice_ret = client->readNotify(notice_cmd, pRecvBuff, iBuffLen);
 		if(0 == notice_ret){
 			fprintf(stderr, "[method: RecvFromServer] parse game notice succ.[notice cmd : %u]\n", notice_cmd);
 		}else{
 			fprintf(stderr, "[method: RecvFromServer] parse game notice fail.[notice cmd : %u]\n", notice_cmd);
 		}
-		log_info("debug:==============> step1");
+		//log_info("debug:==============> step1");
 		if(0 > iBuffLen){
 			cout <<"[CEpollClient error]: iUserId: " << iUserId << "RecvFromServer, recv fail, reason is:"<<strerror(errno)<<",errno is:"<<errno<<endl;
 		}else if(0 == iBuffLen){
@@ -351,10 +416,10 @@ int CEpollClient::RecvFromServer(int iUserId,char *pRecvBuff,uint32_t &iBuffLen)
 		}else{
 			//m_pAllUserStatus[iUserId].iUserStatus = RECV_OK;
 		}
-		log_info("debug:==============> step2");
+		//log_info("debug:==============> step2");
 		//char* result = NULL;
 		//runModel(result,client->currentState);
-		log_info("debug:==============> step3");
+		//log_info("debug:==============> step3");
 		log_info("PB2Json result str:%s\n", client->currentState.c_str());
 	}
 	gettimeofday(&end,NULL);
@@ -391,10 +456,11 @@ void CEpollClient::RunFun()
 		epoll_ctl(m_iEpollFd, EPOLL_CTL_ADD, event.data.fd, &event);
 	}
 	
-	//pool
-	workerpool = new ThreadPool(10);
-    workerpool->start();
+	 
 	
+	//pool
+	workerpool = new ThreadPool(1);
+    workerpool->start();
 	while(1){
 		struct epoll_event events[_MAX_SOCKFD_COUNT];
 		char buffer[8096];
@@ -429,7 +495,7 @@ void CEpollClient::RunFun()
 				int ilen = RecvFromServer(iuserid, buffer, len);
 				
 				//add task
-				char arg[8096];
+				char arg[108096];
 				sprintf(arg, "%s", client->currentState.c_str());
 				Mytask *taskobj=new Mytask();
 				taskobj->setArg((void*)arg);
@@ -463,9 +529,13 @@ void CEpollClient::RunFun()
 			//to do default
 		}
 		
+		//PyGILState_Ensure();
+		//Py_Finalize();
 		//usleep(20*1000);// to avoid py run too busy
 		//google::protobuf::ShutdownProtobufLibrary();
 	}
+	
+	
 }
 
 
